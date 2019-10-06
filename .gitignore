@@ -1,6 +1,9 @@
 # TIC specific directories to be excluded
 /output/*
 
+#Mac specific files
+.DS_Store
+
 # History files
 .Rhistory
 .Rapp.history
