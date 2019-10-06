@@ -1,3 +1,6 @@
+# TIC specific directories to be excluded
+/output/*
+
 # History files
 .Rhistory
 .Rapp.history
