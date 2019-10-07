@@ -1,4 +1,12 @@
 
+
+# PREAMBLE ----------------------------------------------------------------
+
+if (!require(tidyverse)) install.packages('tidyverse')
+if (!require(igraph)) install.packages('igraph')
+if (!require(gtools)) install.packages('gtools')
+if (!require(tools)) install.packages('tools')
+
 # CONFIG ------------------------------------------------------------------
 
 # set the working directory to the desired project directory in input
