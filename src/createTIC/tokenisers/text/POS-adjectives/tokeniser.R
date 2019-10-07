@@ -23,17 +23,17 @@ tokenise <- function(dataSource){
     x <- udpipe::udpipe_annotate(model, x = xx)
     x <- as.data.frame(x)
     
-    nouns <- subset(x, upos %in% c("ADJ"))
-    nouns <- nouns$lemma
+    adjs <- subset(x, upos %in% c("ADJ"))
+    adjs <- adjs$lemma
     
-    unique(nouns)
+    unique(adjs)
   })
   
-  unique_nouns <- lapply(collect, function(tt){
+  unique_adjs <- lapply(collect, function(tt){
     paste(sort(unique(unlist(tt))), collapse = ", ")
   }) 
-  tokenised <- data.frame(x = c(1:length(unique_nouns)),
-                       y = unlist(unique_nouns),
+  tokenised <- data.frame(x = c(1:length(unique_adjs)),
+                       y = unlist(unique_adjs),
                        stringsAsFactors = FALSE)
   
   return(tokenised)

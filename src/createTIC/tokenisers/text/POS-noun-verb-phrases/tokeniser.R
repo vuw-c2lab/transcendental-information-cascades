@@ -23,17 +23,20 @@ tokenise <- function(dataSource){
     x <- udpipe::udpipe_annotate(model, x = xx)
     x <- as.data.frame(x)
     
-    verbs <- subset(x, upos %in% c("VERB"))
-    verbs <- verbs$lemma
+    x$phrase_tag <- as_phrasemachine(x$upos, type = "upos")
+    phrases <- keywords_phrases(x = x$phrase_tag, term = tolower(x$token), 
+                              pattern = "(A|N)*N(P+D*(A|N)*N)*", 
+                              is_regex = TRUE, detailed = FALSE)
+    phrases <- subset(phrases, ngram > 1)
     
-    unique(verbs)
+    unique(phrases)
   })
   
-  unique_verbs <- lapply(collect, function(tt){
+  unique_phrases <- lapply(collect, function(tt){
     paste(sort(unique(unlist(tt))), collapse = ", ")
   }) 
-  tokenised <- data.frame(x = c(1:length(unique_verbs)),
-                       y = unlist(unique_verbs),
+  tokenised <- data.frame(x = c(1:length(unique_phrases)),
+                       y = unlist(unique_phrases),
                        stringsAsFactors = FALSE)
   
   return(tokenised)

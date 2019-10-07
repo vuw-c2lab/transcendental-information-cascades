@@ -232,7 +232,7 @@ readr::write_csv(as.data.frame(netm), paste0("../../output/", projectDir,"/",out
 
 # PIPELINE 4 --------------------------------------------------------------
 
-## post process TIC multiplex from pipelines 1 & 2
+## post process TIC multiplex from pipelines 1 - 3
 
 #which TICs to comnbine?
 
