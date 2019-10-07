@@ -3,7 +3,7 @@ Transcendental Information Cascades (TICs) are a multiplex network approach to t
 
 ## Introduction
 
-<iframe src="//www.slideshare.net/slideshow/embed_code/key/BhG8hR3UpyqC7n" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/MLuczakRoesch/transcending-our-views-to-sequential-data" title="Transcending our views to sequential data " target="_blank">Transcending our views to sequential data </a> </strong> from <strong><a href="https://www.slideshare.net/MLuczakRoesch" target="_blank">Markus Luczak-Rösch</a></strong> </div>
+<iframe src="//www.slideshare.net/slideshow/embed_code/key/BhG8hR3UpyqC7n" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> 
 
 ## Background literature
 Foundations:
