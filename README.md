@@ -2,8 +2,7 @@
 Transcendental Information Cascades (TICs) are a multiplex network approach to the study of dynamical systems. This is a general purpose toolkit for the construction and analysis of TICs developed in R.
 
 ## Introduction
-
-<iframe src="//www.slideshare.net/slideshow/embed_code/key/BhG8hR3UpyqC7n" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> 
+IFrame('https://www.slideshare.net/slideshow/embed_code/key/BhG8hR3UpyqC7n', 595, 485)
 
 ## Background literature
 Foundations:
