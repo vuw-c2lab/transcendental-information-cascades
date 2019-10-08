@@ -1,6 +1,6 @@
 # MAIN FUNCTION -----------------------------------------------------------
 
-tokenise <- function(dataSource){
+tokenise <- function(dataSource,no_cores=1){
   # NLP init
   
   # download
@@ -16,7 +16,13 @@ tokenise <- function(dataSource){
   sourceData <- readr::read_csv(paste0(getwd(),"/data/",dataSource), col_names = F)
   sourceData$X1 <- tolower(sourceData$X1)
   
+  # Initiate cluster
+  cl <- makeCluster(no_cores, type="FORK")
+  
+  clusterExport(cl, varlist = c("model","sourceData"), envir = environment())
+  
   #tokenise
+  #collect <- parLapply(cl,sourceData$X1, function(xx){
   collect <- lapply(sourceData$X1, function(xx){
     
     #annotate
@@ -28,6 +34,8 @@ tokenise <- function(dataSource){
     
     unique(verbs)
   })
+  
+  stopCluster(cl)
   
   unique_verbs <- lapply(collect, function(tt){
     paste(sort(unique(unlist(tt))), collapse = ", ")

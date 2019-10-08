@@ -7,6 +7,12 @@ if (!require(igraph)) install.packages('igraph')
 if (!require(gtools)) install.packages('gtools')
 if (!require(tools)) install.packages('tools')
 
+# set available CPU cores
+no_cores <- detectCores() - 1
+
+# flag to use cuda GPU processing if available
+cuda <- F
+
 # CONFIG ------------------------------------------------------------------
 
 # set the working directory to the desired project directory in input
@@ -110,7 +116,7 @@ dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "postProc
 
 # run
 source("../../src/createTIC/main.R")
-tic <- createTIC(projectDir, outputDir, dataSource, tokeniser)
+tic <- createTIC(projectDir, outputDir, dataSource, tokeniser,no_cores)
 
 # persist TIC to files (optional but needed if post-processing doesn't happen immediately)
 nodes <- data.frame(node_id = unlist(tic[[1]][,1]), tokens = unlist(tic[[1]][,2]),
