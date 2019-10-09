@@ -2,10 +2,12 @@
 
 tokenise <- function(dataSource,no_cores=1){
   # read source data
-  sourceData <- readr::read_csv(paste0(getwd(),"/data/",dataSource), col_names = F)
+  sourceData <- tuneR::readWave(paste0(getwd(),"/data/",dataSource))
   
-  sRate <- 250 #sampling rate in Hz
+  sRate <- sourceData@samp.rate #sampling rate in Hz
   secs <- 2 # configure how long the distinct slices shall be
+  
+  sourceData <- data.frame(left=sourceData@left)
   
   slices <- floor(nrow(sourceData)/(sRate*secs))
   
@@ -45,10 +47,10 @@ tokenise <- function(dataSource,no_cores=1){
       #plot(freqArray/1000, 10*log10(p), type='l', col='black', xlab='Frequency (kHz)', ylab='Power (dB)')
       #specs[[j]]<-10*log10(p)
       #old
-      #specs[[j]]<-stats::spectrum(ds1, plot=FALSE)
+      specs[[j]]<-round(stats::spectrum(ds1, plot=FALSE)$spec,2)
       
       #for raw signal comparison use the raw data as initialized below
-      specs[[j]]<-ds1
+      #specs[[j]]<-ds1
     }
     
     for(nChan in 1:ncol(sourceData)){
@@ -68,29 +70,20 @@ tokenise <- function(dataSource,no_cores=1){
     }
   }
   
-  #tokenise
-  collect <- lapply(sourceData$X1, function(xx){
-    
-    #annotate
-    x <- udpipe::udpipe_annotate(model, x = xx)
-    x <- as.data.frame(x)
-    
-    adjs <- subset(x, upos %in% c("ADJ"))
-    adjs <- adjs$lemma
-    
-    unique(adjs)
+  tokenised <- lapply(events,function(x){
+    tok <- c()
+    for(freq in 1:length(x)){
+      tok <- c(tok,paste0(freq,"_",x[freq]))
+    }
+    paste(tok,collapse = ", ")
   })
   
-  unique_adjs <- lapply(collect, function(tt){
-    paste(sort(unique(unlist(tt))), collapse = ", ")
-  }) 
-  tokenised <- data.frame(x = c(1:length(unique_adjs)),
-                       y = unlist(unique_adjs),
-                       stringsAsFactors = FALSE)
+  tokenised <- data.frame(x = c(1:length(tokenised)),
+                          y = unlist(tokenised),
+                          stringsAsFactors = FALSE)
   
   return(tokenised)
 }
-
 
 # SUPPORT FUNCTIONS -------------------------------------------------------
 

@@ -6,6 +6,7 @@ if (!require(tidyverse)) install.packages('tidyverse')
 if (!require(igraph)) install.packages('igraph')
 if (!require(gtools)) install.packages('gtools')
 if (!require(tools)) install.packages('tools')
+if (!require(tuneR)) install.packages('tuneR')
 
 # set available CPU cores
 no_cores <- detectCores() - 1
@@ -29,7 +30,7 @@ dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
 dataSource <- "example.txt"
 
 # select tokeniser
-tokeniser <- "signal/EEG-multichannel"
+tokeniser <- "continuous/signal-EEG-spectral-coherence"
 
 # create output directories for the different modules in this pipeline
 outputDir <- paste0(tools::file_path_sans_ext(dataSource),"-",gsub("/","-",tokeniser),"-",format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
