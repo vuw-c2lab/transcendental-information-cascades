@@ -15,6 +15,16 @@ createTIC <- function(projectDir, outputDir, dataSource, tokeniser,no_cores=1){
   if(grepl("continuous/",tokeniser)) tic <- generateContinuousTIC(tokenised)
   else tic <- generateDiscreteTIC(tokenised)
   
+  # persist TIC to files (optional but needed if post-processing doesn't happen immediately)
+  nodes <- data.frame(node_id = unlist(tic[[1]][,1]), tokens = unlist(tic[[1]][,2]),
+                      ord = unlist(tic[[1]][,3]), stringsAsFactors = F)
+  links <- data.frame(source = unlist(tic[[2]][,1]), target = unlist(tic[[2]][,2]),
+                      token = unlist(tic[[2]][,3]), stringsAsFactors = F)
+  readr::write_csv(nodes,paste0("../../output/", projectDir,"/",
+                                outputDir,"/createTIC/nodes.csv"),col_names = T)
+  readr::write_csv(links,paste0("../../output/", projectDir,"/",
+                                outputDir,"/createTIC/links.csv"),col_names = T)
+  
   return(tic)
 }
 
