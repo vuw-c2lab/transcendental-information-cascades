@@ -91,7 +91,7 @@ rownames(netm) <- igraph::V(h)$name
 readr::write_csv(as.data.frame(netm), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/coocmatrix.csv"),col_names = T)
 
 
-# PIPELINE 1 --------------------------------------------------------------
+# PIPELINE 2 --------------------------------------------------------------
 
 ## create TIC
 # get project name from current directory and create output directory for project

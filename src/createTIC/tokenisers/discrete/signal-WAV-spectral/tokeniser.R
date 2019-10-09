@@ -5,7 +5,7 @@ tokenise <- function(dataSource,no_cores=1){
   sourceData <- tuneR::readWave(paste0(getwd(),"/data/",dataSource))
   
   sRate <- sourceData@samp.rate #sampling rate in Hz
-  secs <- 2 # configure how long the distinct slices shall be
+  secs <- 5 # configure how long the distinct slices shall be
   
   sourceData <- data.frame(left=sourceData@left)
   
