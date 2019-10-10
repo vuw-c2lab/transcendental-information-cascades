@@ -26,7 +26,7 @@ projectDir <- basename(getwd())
 dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
 
 # data source
-dataSource <- "example.txt"
+dataSource <- "example-short.txt"
 
 # select tokeniser
 tokeniser <- "discrete/text-POS-nouns"
@@ -34,10 +34,6 @@ tokeniser <- "discrete/text-POS-nouns"
 # create output directories for the different modules in this pipeline
 outputDir <- paste0(tools::file_path_sans_ext(dataSource),"-",gsub("/","-",tokeniser),"-",format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
 dir.create(file.path(paste0("../../output/",projectDir), outputDir), showWarnings = T)
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "createTIC"), showWarnings = FALSE)
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "visualiseTIC"), showWarnings = FALSE)
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "postProcessTICNetwork"), showWarnings = FALSE)
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "postProcessTICMultiplex"), showWarnings = FALSE)
 
 # run
 source("../../src/createTIC/main.R")
@@ -58,19 +54,12 @@ postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores
 projectDir <- basename(getwd())
 dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
 
-# data source
-dataSource <- "example.txt"
-
 # select tokeniser
 tokeniser <- "discrete/text-POS-verbs"
 
-# create output directories for the different modules in this pipeline
+# create output directories for this project pipeline
 outputDir <- paste0(tools::file_path_sans_ext(dataSource),"-",gsub("/","-",tokeniser),"-",format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
 dir.create(file.path(paste0("../../output/",projectDir), outputDir), showWarnings = T)
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "createTIC"), showWarnings = FALSE)
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "visualiseTIC"), showWarnings = FALSE)
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "postProcessTICNetwork"), showWarnings = FALSE)
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "postProcessTICMultiplex"), showWarnings = FALSE)
 
 # run
 source("../../src/createTIC/main.R")
@@ -87,19 +76,14 @@ postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores
 projectDir <- basename(getwd())
 dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
 
-# data source
-dataSource <- "example.txt"
-
 # select tokeniser
 tokeniser <- "discrete/text-POS-adjectives"
 
-# create output directories for the different modules in this pipeline
+# create output directory for this project
 outputDir <- paste0(tools::file_path_sans_ext(dataSource),"-",gsub("/","-",tokeniser),"-",format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
 dir.create(file.path(paste0("../../output/",projectDir), outputDir), showWarnings = T)
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "createTIC"), showWarnings = FALSE)
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "visualiseTIC"), showWarnings = FALSE)
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "postProcessTICNetwork"), showWarnings = FALSE)
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "postProcessTICMultiplex"), showWarnings = FALSE)
+
+#dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "visualiseTIC"), showWarnings = FALSE)
 
 # run TIC creation
 source("../../src/createTIC/main.R")

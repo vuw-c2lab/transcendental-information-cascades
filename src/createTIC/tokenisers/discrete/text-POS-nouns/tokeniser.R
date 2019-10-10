@@ -11,7 +11,7 @@ model <- udpipe::udpipe_load_model(file = "/Users/MLR/english-ewt-ud-2.4-190531.
 #model <- udpipe::udpipe_load_model(file = "/Users/MLR/indonesian-gsd-ud-2.4-190531.udpipe") #bahasa
 #model <- udpipe::udpipe_load_model(file = "/Users/MLR/portuguese-bosque-ud-2.4-190531.udpipe") #portuguese
 
-tokenise <- function(dataSource){
+tokenise <- function(dataSource,no_cores=1){
   # read source data
   sourceData <- readr::read_csv(paste0(getwd(),"/data/",dataSource), col_names = F)
   sourceData$X1 <- tolower(sourceData$X1)

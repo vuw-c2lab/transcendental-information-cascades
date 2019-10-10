@@ -1,4 +1,8 @@
 
+# PREAMBLE ----------------------------------------------------------------
+
+dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "postProcessTICNetwork"), showWarnings = FALSE)
+
 # MAIN FUNCTION -----------------------------------------------------------
 
 postProcessTICNetwork <- function(tic, projectDir, outputDir, dataSource, tokeniser,no_cores=1){

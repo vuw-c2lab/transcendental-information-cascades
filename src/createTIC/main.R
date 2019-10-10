@@ -1,4 +1,9 @@
 
+# PREAMBLE ----------------------------------------------------------------
+
+dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "createTIC"), showWarnings = FALSE)
+
+
 # MAIN FUNCTION -----------------------------------------------------------
 
 createTIC <- function(projectDir, outputDir, dataSource, tokeniser,no_cores=1){
