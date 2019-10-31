@@ -6,6 +6,7 @@ if (!require(tidyverse)) install.packages('tidyverse')
 if (!require(igraph)) install.packages('igraph')
 if (!require(gtools)) install.packages('gtools')
 if (!require(tools)) install.packages('tools')
+if (!require(parallel)) install.packages('parallel')
 
 # set available CPU cores
 no_cores <- detectCores() - 1
@@ -100,3 +101,5 @@ postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores
 
 #which TICs to comnbine?
 
+source("../../src/postProcessTICMultiplex/main.R")
+tnsr <- postProcessTICMultiplex(projectDir, outputDir, dataSource)

@@ -1,7 +1,7 @@
 
 # PREAMBLE ----------------------------------------------------------------
 
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "postProcessTICMultiplex"), showWarnings = FALSE)
+dir.create(file.path(paste0("../../output/",projectDir,"/"), "postProcessTICMultiplex"), showWarnings = FALSE)
 
 # PREAMBLE ----------------------------------------------------------------
 
@@ -12,7 +12,7 @@ if (!require(rTensor)) install.packages('rTensor')
 postProcessTICMultiplex <- function(projectDir, outputDir, dataSource, tokeniser,no_cores=1){
   # load all TIC adjacency matrices
   allTICs <- list.dirs(paste0("../../output/",projectDir,"/"),full.names = F,recursive = F)
-  
+  allTICs <- allTICs[-which(allTICs=="postProcessTICMultiplex")]
   # generate the mode of the TIC tensor
   z <- length(allTICs) # how many layers
   x <- y <- 0
@@ -34,7 +34,9 @@ postProcessTICMultiplex <- function(projectDir, outputDir, dataSource, tokeniser
     tnsr <- as.tensor(array(c(c(firstLayer),unlist(lapply(mats,function(x){c(x)}))),dim=indices))
   } else{
     print("not enough TICs created")
+    tnsr <- NULL
   }
+  return(tnsr)
 }
 
 

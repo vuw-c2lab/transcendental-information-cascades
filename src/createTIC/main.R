@@ -17,7 +17,7 @@ createTIC <- function(projectDir, outputDir, dataSource, tokeniser,no_cores=1){
   tokenised <- tokenise(dataSource,no_cores)
   
   # create TIC using input sequence
-  if(grepl("continuous/",tokeniser)) tic <- generateContinuousTIC(tokenised)
+  if(grepl("continuous/",tokeniser)) tic <- generateContinuousTIC(tokenised,tokeniser)
   else tic <- generateDiscreteTIC(tokenised)
   
   # persist TIC to files (optional but needed if post-processing doesn't happen immediately)
@@ -69,36 +69,82 @@ generateContinuousTIC <- function(inputsequence,tokeniser) {
   matched<-list()
   matchedSource<-list()
   
-  for(j in 1:length(inputsequence)){
-    interact<-list()
-    if(j>1){
-      for(k in 1:(j-1)){
-        print(inputsequence[[k]])
-        for(l in 1:ncol(inputsequence[[k]])){
-          if(is.null(matched[[paste(j,l,sep='_')]]) && is.null(matchedSource[[paste(k,l,sep='_')]])){
-            
-            #load similarity measure
-            isSimilar <- similar(as.numeric(unlist(inputsequence[[j]][,l])),as.numeric(unlist(inputsequence[[k]][,l])),0.6)
-            
-            if(isSimilar[[1]]){
+  if(grepl(pattern = "text",x = tokeniser)){
+    for(j in 1:length(inputsequence)){
+      interact<-list()
+      allOldVectors <- unlist(strsplit(inputsequence[[j]],", "))
+      words <- c()
+      if(j>1 & length(allOldVectors)>0){
+        for(k in 1:(j-1)){
+          
+          allVectors <- unlist(strsplit(inputsequence[[k]],", "))
+          if(length(allVectors)>0){
+            for(l in 1:length(allVectors)){
+              if(is.null(matched[[paste(j,allVectors[l],sep='_')]]) && is.null(matchedSource[[paste(k,allVectors[l],sep='_')]])){
+                  #load similarity measure
+                  for(m in 1:length(allOldVectors)){
+                    isSimilar <- similar(as.numeric(unlist(strsplit(allOldVectors[m]," # "))),as.numeric(unlist(strsplit(allVectors[l]," # "))))
+                    
+                    if(isSimilar[[1]]){
+                      
+                      wordSource <- closest_to(wordVec,as.VectorSpaceModel(matrix(nrow = 1,ncol = length(as.numeric(unlist(strsplit(allVectors[l]," # ")))),data = as.numeric(unlist(strsplit(allVectors[l]," # "))))))
+                      wordTarget <- closest_to(wordVec,as.VectorSpaceModel(matrix(nrow = 1,ncol = length(as.numeric(unlist(strsplit(allOldVectors[m]," # ")))),data = as.numeric(unlist(strsplit(allOldVectors[m]," # "))))))
+                      
+                      interact[[paste0(allVectors[l])]]<-paste0(wordSource,"-",wordTarget)
+                      
+                      #if(length(tail(which(links[,3]==l),1)) > 0){
+                      #  if(links[tail(which(links[,3]==l),1),2]!=as.character(k)){
+                      #    links<-rbind(links,c(links[tail(which(links[,3]==l),1),2],k,paste0(l),0.2))
+                      #  }
+                      #}
+                      #links<-rbind(links,c(k,j,paste0(l),mean(isSimilar[[2]])))
+                      links<-rbind(links,c(k,j,paste0(wordSource,"-",wordTarget)))
+                      matched[[paste(j,allVectors[l],sep='_')]]<-1
+                      matchedSource[[paste(k,allVectors[l],sep='_')]]<-1
+                    }
+                  }
+              }
+            }
+          }
+        }
+        for(m in 1:length(allOldVectors)){
+          words <- c(words,closest_to(wordVec,as.VectorSpaceModel(matrix(nrow = 1,ncol = length(as.numeric(unlist(strsplit(allOldVectors[m]," # ")))),data = as.numeric(unlist(strsplit(allOldVectors[m]," # "))))))[1,1])
+        }
+      }
+      
+      nodes <- rbind(nodes, c(as.numeric(j),paste(words,collapse=', '),as.numeric(j)))
+    }
+  } else{
+    for(j in 1:length(inputsequence)){
+      interact<-list()
+      if(j>1){
+        for(k in 1:(j-1)){
+          for(l in 1:ncol(inputsequence[[k]])){
+            if(is.null(matched[[paste(j,l,sep='_')]]) && is.null(matchedSource[[paste(k,l,sep='_')]])){
               
-              interact[[paste0(l)]]<-l
+              #load similarity measure
+              isSimilar <- similar(as.numeric(unlist(inputsequence[[j]][,l])),as.numeric(unlist(inputsequence[[k]][,l])),0.6)
               
-              #if(length(tail(which(links[,3]==l),1)) > 0){
-              #  if(links[tail(which(links[,3]==l),1),2]!=as.character(k)){
-              #    links<-rbind(links,c(links[tail(which(links[,3]==l),1),2],k,paste0(l),0.2))
-              #  }
-              #}
-              #links<-rbind(links,c(k,j,paste0(l),mean(isSimilar[[2]])))
-              links<-rbind(links,c(k,j,paste0(l)))
-              matched[[paste(j,l,sep='_')]]<-1
-              matchedSource[[paste(k,l,sep='_')]]<-1
+              if(isSimilar[[1]]){
+                
+                interact[[paste0(l)]]<-l
+                
+                #if(length(tail(which(links[,3]==l),1)) > 0){
+                #  if(links[tail(which(links[,3]==l),1),2]!=as.character(k)){
+                #    links<-rbind(links,c(links[tail(which(links[,3]==l),1),2],k,paste0(l),0.2))
+                #  }
+                #}
+                #links<-rbind(links,c(k,j,paste0(l),mean(isSimilar[[2]])))
+                links<-rbind(links,c(k,j,paste0(l)))
+                matched[[paste(j,l,sep='_')]]<-1
+                matchedSource[[paste(k,l,sep='_')]]<-1
+              }
             }
           }
         }
       }
+      nodes <- rbind(nodes, c(as.numeric(j),paste(interact,collapse=', '),as.numeric(j)))
     }
-    nodes <- rbind(nodes, c(as.numeric(j),paste(interact,collapse=', '),as.numeric(j)))
   }
   
   return(list(nodes, links))
