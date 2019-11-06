@@ -102,6 +102,8 @@ generateContinuousTIC <- function(inputsequence,tokeniser) {
               }
           }
         }
+      }
+      if(length(allOldVectors>0)){
         for(m in 1:length(allOldVectors)){
           words <- c(words,closest_to(wordVec,as.VectorSpaceModel(matrix(nrow = 1,ncol = length(as.numeric(unlist(strsplit(allOldVectors[m]," # ")))),data = as.numeric(unlist(strsplit(allOldVectors[m]," # "))))))[1,1])
         }
