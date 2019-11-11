@@ -9,7 +9,8 @@
         .linkThreeObjectExtend(true)
         .linkThreeObject(link => {
           // extend link with text sprite
-          const sprite = new SpriteText(`${link.source} > ${link.target}`);
+          //const sprite = new SpriteText(`${link.source} > ${link.target}`);
+          const sprite = new SpriteText(`${link.value}`);
           sprite.color = 'lightgrey';
           sprite.textHeight = 1.5;
           return sprite;

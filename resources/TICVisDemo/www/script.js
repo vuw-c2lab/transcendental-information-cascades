@@ -6,6 +6,17 @@ function getAllIndexes(arr, val) {
     return indexes;
 }
 
+function removeNode(node) {
+  let { nodes, links } = Graph.graphData();
+  links = links.filter(l => l.source.id !== node && l.target.id !== node); // Remove links attached to node
+  tmp = links.filter(l => l.source === node || l.target === node);
+  console.log(node);
+  console.log(links);
+  nodes.splice(node.id, 1); // Remove node
+  nodes.forEach((n, idx) => { n.id = idx; }); // Reset node ids to array index
+  Graph.graphData({ nodes, links });
+}
+
 Shiny.addCustomMessageHandler("replace-labels", function(nodes_links) {
   var pres = document.getElementsByTagName("pre");
   //console.log(nodes_links[0]);
@@ -37,5 +48,14 @@ Shiny.addCustomMessageHandler("replace-labels", function(nodes_links) {
         }
       }
     }
+  }
+});
+
+Shiny.addCustomMessageHandler("update-graph", function(nodes_links) {
+  //Graph.jsonUrl('graph.json');
+  
+  if(nodes_links[0].node_id !== undefined){
+    //console.log(nodes_links[0].node_id);
+    removeNode(nodes_links[0].node_id);
   }
 });
