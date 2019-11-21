@@ -73,12 +73,6 @@ createCooccurrenceMatrix <- function(nodes, links, projectDir, outputDir, dataSo
 }
 
 createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1){
-  # create TIC network matrix and persist matrix
-  
-  colnames(links) <- c("id1","id2","label")
-  g <- igraph::graph.data.frame(links,directed = TRUE,vertices = nodes)
-  readr::write_csv(as.data.frame(igraph::as_adjacency_matrix(g, sparse = F)), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICmatrix.csv"),col_names = T)
-  
   # now compute the structural and information theoretic features and persist these
   # 
   casc <- c()
