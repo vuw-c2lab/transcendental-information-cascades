@@ -95,6 +95,7 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   struct <- c()
   props <- c()
   for(z in 1:nrow(nodes)){
+    print(paste0("# compute seq features up to node ",z))
     if(nodes[z,]$tokens == "" | is.na(nodes[z,]$tokens)){
       if(nrow(ent) > 0){
         #ent <- rbind(ent, ent[nrow(ent),])
