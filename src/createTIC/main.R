@@ -37,28 +37,39 @@ createTIC <- function(projectDir, outputDir, dataSource, tokeniser,no_cores=1){
 # SUPPORT FUNCTIONS -------------------------------------------------------
 
 generateDiscreteTIC <- function(inputsequence) {
-  nodes <- c()
+  nodes <- data.frame(id=numeric(nrow(inputsequence)),tokens=character(nrow(inputsequence)),dpub=character(nrow(inputsequence)),stringsAsFactors = F)
   links <- c()
   last_node <- list()
-  
-  for(pp in 1:nrow(inputsequence)){
-    tokens <- unlist(strsplit(as.character(inputsequence[which(inputsequence[,1] == pp),2]), split=", "))
-    nodes <- rbind(nodes, c(inputsequence[which(inputsequence[,1]== pp),1],
-                            as.character(inputsequence[which(inputsequence[,1] == pp),2]),
-                            inputsequence[which(inputsequence[,1] == pp),1]))
-    
-    for(jj in 1:length(tokens)){
-      cur_token <- tokens[jj]
-      if(!is.null(unlist(last_node[cur_token]))){ 
-        source_node <- last_node[cur_token]
-        target_node <- pp
-        links <- rbind(links, c(source_node, target_node, cur_token))
+  cnt <- 0
+  links <- apply(inputsequence,1,function(x){
+    cnt <<- cnt + 1
+    print(paste0("# process node ",cnt, " of ",nrow(inputsequence)))
+    tokens <- unlist(strsplit(as.character(x[2]), split=", "))
+    nodes[cnt,1] <<- as.numeric(x[1])
+    nodes[cnt,2] <<- as.character(x[2])
+    nodes[cnt,3] <<- x[1]
+
+    tmp <- lapply(tokens,function(y){
+      cur_token <- y
+      new_link <- NULL
+      #print(x)
+      if(!is.null(unlist(last_node[cur_token]))){
+        source_node <- as.numeric(last_node[cur_token])
+        target_node <- as.numeric(x[1])
+        new_link <- data.frame(source=as.numeric(source_node), target=as.numeric(target_node), token=cur_token)
+        #new_link <- unlist(new_link)
       }
-      last_node[cur_token] <- pp
-    }
-    
-  }
-  return(list(nodes, links))
+      last_node[cur_token] <<- as.numeric(x[1])
+      if(!is.null(new_link)){
+        new_link
+      }
+    })
+    tmp <- do.call("rbind", tmp)
+    tmp
+  })
+  links <- do.call("rbind", links)
+  #print(links)
+  return(list(nodes, as.data.frame(links)))
 }
 
 generateContinuousTIC <- function(inputsequence,tokeniser) {

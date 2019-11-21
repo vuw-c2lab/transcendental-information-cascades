@@ -2,10 +2,10 @@
 
 tokenise <- function(dataSource,no_cores=1){
   # read source data
-  sourceData <- readr::read_csv(paste0(getwd(),"/data/",dataSource), col_names = F)
+  sourceData <- readr::read_csv(paste0(getwd(),"/data/",dataSource), col_names = T)
   
   sRate <- 250 #sampling rate in Hz
-  secs <- 2 # configure how long the distinct slices shall be
+  secs <- 1 # configure how long the distinct slices shall be
   
   slices <- floor(nrow(sourceData)/(sRate*secs))
   
