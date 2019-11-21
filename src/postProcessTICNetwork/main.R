@@ -83,7 +83,7 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   # 
   casc <- c()
   inter <- c()
-  ent <- data.frame(ww = numeric(0), xx = numeric(0), yy = numeric(0), zz = numeric(0))
+  #ent <- data.frame(ww = numeric(0), xx = numeric(0), yy = numeric(0), zz = numeric(0))
   wien <- c()
   colnames(links) <- c('source', 'target', 'tag')
   
@@ -97,11 +97,11 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   for(z in 1:nrow(nodes)){
     if(nodes[z,]$tokens == "" | is.na(nodes[z,]$tokens)){
       if(nrow(ent) > 0){
-        ent <- rbind(ent, ent[nrow(ent),])
+        #ent <- rbind(ent, ent[nrow(ent),])
         wien <- rbind(wien, wien[nrow(wien),])
         
       }else{
-        ent <- rbind(ent, c(0, 1, 0, 1))
+        #ent <- rbind(ent, c(0, 1, 0, 1))
         wien <- rbind(wien, c(0, 1, 1))
       }
       coordinates <- rbind(coordinates, c(as.numeric(nodes[z, 1]), 0, 0))
@@ -136,14 +136,14 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
         }
       }
       df <- data.frame(unlist(interact))
-      tmp <- df[,1] / colSums(df)
-      df$loga <- log(tmp)
-      df$piloga <- tmp * log(tmp)
-      if(is.nan((-1 * (colSums(df)[3])) / log(nrow(df)))){
-        ent <- rbind(ent,c(entropy.empirical(df[,1], unit = "log2"), 1, -1 * (colSums(df)[3]), 1))
-      } else{
-        ent <- rbind(ent, c(entropy.empirical(df[,1], unit = "log2"), (-1 * (colSums(df)[3])) / log2(nrow(df)),-1*(colSums(df)[3]),(-1*(colSums(df)[3]))/log(nrow(df))))
-      }
+      # tmp <- df[,1] / colSums(df)
+      # df$loga <- log(tmp)
+      # df$piloga <- tmp * log(tmp)
+      # if(is.nan((-1 * (colSums(df)[3])) / log(nrow(df)))){
+      #   ent <- rbind(ent,c(entropy.empirical(df[,1], unit = "log2"), 1, -1 * (colSums(df)[3]), 1))
+      # } else{
+      #   ent <- rbind(ent, c(entropy.empirical(df[,1], unit = "log2"), (-1 * (colSums(df)[3])) / log2(nrow(df)),-1*(colSums(df)[3]),(-1*(colSums(df)[3]))/log(nrow(df))))
+      # }
       
       if(nrow(df) == 1){
         wien <- rbind(wien, c(0, 1, 1))
@@ -155,7 +155,7 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
       }}
     
     #}
-    colnames(ent)<-c('empEntropy', 'evenness_log2', 'entropy', 'evenness')
+    #colnames(ent)<-c('empEntropy', 'evenness_log2', 'entropy', 'evenness')
     colnames(wien)<-c('ShannonWiener', 'Pielou', 'Richness')
     
     #add node
@@ -172,14 +172,14 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
     struct <- rbind(struct, c(diameter(g1), edge_density(g1), modularity(wtc)))
   }
   
-  readr::write_csv(as.data.frame(ent), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory1.csv"),col_names = T)
+  #readr::write_csv(as.data.frame(ent), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory1.csv"),col_names = T)
   readr::write_csv(as.data.frame(wien), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory2.csv"),col_names = T)
   
   #scatterplot3d(coordinates[,2],coordinates[,1],coordinates[,3],pch=16, highlight.3d=TRUE,type="h",xlab="Specificity",ylab="Node index",zlab="Diversity")
   
   
-  ent_plot <- as.data.frame(ent) %>%
-    mutate(rownumber = seq.int(nrow(.)))
+  # ent_plot <- as.data.frame(ent) %>%
+  #   mutate(rownumber = seq.int(nrow(.)))
   
   wien_plot <- as.data.frame(wien) %>%
     mutate(rownumber = seq.int(nrow(.)))
