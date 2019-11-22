@@ -181,8 +181,10 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   wien_plot <- as.data.frame(wien) %>%
     mutate(rownumber = seq.int(nrow(.)))
   
-  struct[which(is.na(struct))]<<-0
-  readr::write_csv(as.data.frame(struct), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICStructFeatures.csv"),col_names = T)
+  test <- struct
+  test[which(is.na(test))]<<-0
+  
+  readr::write_csv(as.data.frame(test), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICStructFeatures.csv"),col_names = T)
   
   readr::write_csv(as.data.frame(coordinates), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICCoordinates.csv"),col_names = T)
   
