@@ -86,9 +86,8 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   spec <- list()
   div <- 1
   
-  g1 <- make_empty_graph(n = 0, directed = TRUE)
-  struct <- data.frame(diameter=numeric(nrow(nodes)),density=numeric(nrow(nodes)),modularity=numeric(nrow(nodes)))
-  print(nrow(struct))
+  #g1 <- make_empty_graph(n = 0, directed = TRUE)
+  #struct <- data.frame(diameter=numeric(nrow(nodes)),density=numeric(nrow(nodes)),modularity=numeric(nrow(nodes)))
   z <- 0
   
   res <- apply(nodes, 1, function(x){
@@ -115,7 +114,7 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
       }
       else{
         if(is.null(spec[[nextI]])){
-          spec[[nextI]] <- c(1,div)
+          spec[[nextI]] <<- c(1,div)
           coordinates[z,] <<- c(as.numeric(nodes[z,1]),spec[[nextI]][1],div)
           div <<- div+1
         }else{
@@ -155,17 +154,17 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
     #colnames(ent)<-c('empEntropy', 'evenness_log2', 'entropy', 'evenness')
     
     #add node
-    g1 <<- add_vertices(g1,1,attr = list(id = as.numeric(nodes[z,1])))
+    #g1 <<- add_vertices(g1,1,attr = list(id = as.numeric(nodes[z,1])))
     
     #add all links to node
-    theLinks <- unique(links[which(links[,2] == nodes[z,1]),1:2])
-    for(srclnk in theLinks[,1]){
-      g1 <<- add_edges(g1, c(which(V(g1)$id == srclnk), which(V(g1)$id == as.numeric(nodes[z,1]))))
-    }
+    #theLinks <- unique(links[which(links[,2] == nodes[z,1]),1:2])
+    #for(srclnk in theLinks[,1]){
+    #  g1 <<- add_edges(g1, c(which(V(g1)$id == srclnk), which(V(g1)$id == as.numeric(nodes[z,1]))))
+    #}
     
     #degd <- degree.distribution(g1)
-    wtc <- cluster_walktrap(g1)
-    struct[z,] <<- c(diameter(g1), edge_density(g1), modularity(wtc))
+    #wtc <- cluster_walktrap(g1)
+    #struct[z,] <<- c(diameter(g1), edge_density(g1), modularity(wtc))
   })
   
   #readr::write_csv(as.data.frame(ent), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory1.csv"),col_names = T)
@@ -180,13 +179,13 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   wien_plot <- as.data.frame(wien) %>%
     mutate(rownumber = seq.int(nrow(.)))
   
-  struct[which(is.na(struct))]<<-0
-  readr::write_csv(as.data.frame(struct), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICStructFeatures.csv"),col_names = T)
+  #struct[which(is.na(struct))]<<-0
+  #readr::write_csv(as.data.frame(struct), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICStructFeatures.csv"),col_names = T)
   
   readr::write_csv(as.data.frame(coordinates), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICCoordinates.csv"),col_names = T)
   
-  struc_plot <- as.data.frame(struct) %>%
-    mutate(rownumber = seq.int(nrow(.)))
+  #struc_plot <- as.data.frame(struct) %>%
+  #  mutate(rownumber = seq.int(nrow(.)))
   
   #ggsave(paste0("TLit/www/output/", sliceSize, "/", theSource,"_gutenberg_entropy.jpg"),
   # plot = ent_plot %>%
