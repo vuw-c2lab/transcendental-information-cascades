@@ -82,7 +82,7 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   wien <- data.frame(ShannonWiener=numeric(nrow(nodes)),Pielou=numeric(nrow(nodes)),Richness=numeric(nrow(nodes)))
   colnames(links) <- c('source', 'target', 'tag')
   
-  coordinates <- data.frame(x=numeric(nrow(nodes)),y=numeric(nrow(nodes)),z=numeric(nrow(nodes)))
+  coordinates <- data.frame(t=numeric(nrow(nodes)),specificity=numeric(nrow(nodes)),diversity=numeric(nrow(nodes)))
   spec <- list()
   div = 1
   
@@ -181,11 +181,9 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   wien_plot <- as.data.frame(wien) %>%
     mutate(rownumber = seq.int(nrow(.)))
   
-  colnames(struct) <- c("diameter","density","modularity")
-  struct[which(is.nan(struct))]<-0
+  struct[which(is.nan(struct))]<<-0
   readr::write_csv(as.data.frame(struct), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICStructFeatures.csv"),col_names = T)
   
-  colnames(coordinates) <- c("t","specificity","diversity")
   readr::write_csv(as.data.frame(coordinates), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICCoordinates.csv"),col_names = T)
   
   struc_plot <- as.data.frame(struct) %>%
