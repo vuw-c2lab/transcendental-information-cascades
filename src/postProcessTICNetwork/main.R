@@ -155,7 +155,6 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
     
     #}
     #colnames(ent)<-c('empEntropy', 'evenness_log2', 'entropy', 'evenness')
-    colnames(wien)<-c('ShannonWiener', 'Pielou', 'Richness')
     
     #add node
     g1 <- add_vertices(g1,1,attr = list(id = as.numeric(nodes[z,1])))
@@ -170,7 +169,7 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
     wtc <- cluster_walktrap(g1)
     struct[z,] <<- c(diameter(g1), edge_density(g1), modularity(wtc))
   })
-  
+  colnames(wien)<-c('ShannonWiener', 'Pielou', 'Richness')
   #readr::write_csv(as.data.frame(ent), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory1.csv"),col_names = T)
   readr::write_csv(as.data.frame(wien), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory2.csv"),col_names = T)
   
