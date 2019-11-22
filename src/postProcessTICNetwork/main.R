@@ -79,7 +79,7 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   casc <- c()
   inter <- c()
   #ent <- data.frame(ww = numeric(0), xx = numeric(0), yy = numeric(0), zz = numeric(0))
-  wien <- data.frame(x=numeric(nrow(nodes)),y=numeric(nrow(nodes)),z=numeric(nrow(nodes)))
+  wien <- data.frame(ShannonWiener=numeric(nrow(nodes)),Pielou=numeric(nrow(nodes)),Richness=numeric(nrow(nodes)))
   colnames(links) <- c('source', 'target', 'tag')
   
   coordinates <- data.frame(x=numeric(nrow(nodes)),y=numeric(nrow(nodes)),z=numeric(nrow(nodes)))
@@ -169,7 +169,6 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
     wtc <- cluster_walktrap(g1)
     struct[z,] <<- c(diameter(g1), edge_density(g1), modularity(wtc))
   })
-  colnames(wien)<-c('ShannonWiener', 'Pielou', 'Richness')
   #readr::write_csv(as.data.frame(ent), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory1.csv"),col_names = T)
   readr::write_csv(as.data.frame(wien), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory2.csv"),col_names = T)
   
