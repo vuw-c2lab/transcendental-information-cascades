@@ -21,7 +21,7 @@ postProcessTICNetwork <- function(tic=NULL, projectDir, outputDir, dataSource, t
                         token = unlist(tic[[2]][,3]), stringsAsFactors = F)
   }
   
-  createTICMatrix(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
+  #createTICMatrix(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
   #createCooccurrenceMatrix(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
   
   createTICFeaturesFeature(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
