@@ -84,10 +84,11 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   
   coordinates <- data.frame(t=numeric(nrow(nodes)),specificity=numeric(nrow(nodes)),diversity=numeric(nrow(nodes)))
   spec <- list()
-  div = 1
+  div <- 1
   
   g1 <- make_empty_graph(n = 0, directed = TRUE)
   struct <- data.frame(diameter=numeric(nrow(nodes)),density=numeric(nrow(nodes)),modularity=numeric(nrow(nodes)))
+  print(nrow(struct))
   props <- c()
   z <- 0
   res <- lapply(nodes, function(x){
@@ -169,6 +170,7 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
     wtc <- cluster_walktrap(g1)
     struct[z,] <<- c(diameter(g1), edge_density(g1), modularity(wtc))
   })
+  print("#finished apply#")
   #readr::write_csv(as.data.frame(ent), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory1.csv"),col_names = T)
   readr::write_csv(as.data.frame(wien), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory2.csv"),col_names = T)
   
@@ -181,10 +183,8 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   wien_plot <- as.data.frame(wien) %>%
     mutate(rownumber = seq.int(nrow(.)))
   
-  test <- struct
-  test[which(is.na(test))]<<-0
-  
-  readr::write_csv(as.data.frame(test), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICStructFeatures.csv"),col_names = T)
+  struct[which(is.na(struct))]<<-0
+  readr::write_csv(as.data.frame(struct), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICStructFeatures.csv"),col_names = T)
   
   readr::write_csv(as.data.frame(coordinates), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICCoordinates.csv"),col_names = T)
   
