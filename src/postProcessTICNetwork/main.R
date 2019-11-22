@@ -76,8 +76,8 @@ createCooccurrenceMatrix <- function(nodes, links, projectDir, outputDir, dataSo
 createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1){
   # now compute the structural and information theoretic features and persist these
   # 
-  casc <- c()
-  inter <- c()
+  allTokens<-unique(unlist(strsplit(foo$tokens,", ")))
+  inter <- setNames(as.list(rep(0,length(allTokens))),allTokens)
   #ent <- data.frame(ww = numeric(0), xx = numeric(0), yy = numeric(0), zz = numeric(0))
   wien <- data.frame(ShannonWiener=numeric(nrow(nodes)),Pielou=numeric(nrow(nodes)),Richness=numeric(nrow(nodes)))
   colnames(links) <- c('source', 'target', 'tag')
@@ -89,7 +89,6 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   g1 <- make_empty_graph(n = 0, directed = TRUE)
   struct <- data.frame(diameter=numeric(nrow(nodes)),density=numeric(nrow(nodes)),modularity=numeric(nrow(nodes)))
   print(nrow(struct))
-  props <- c()
   z <- 0
   
   res <- apply(nodes, 1, function(x){
@@ -108,8 +107,8 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
       coordinates[z,] <<- c(as.numeric(nodes[z, 1]), 0, 0)
       
     }else{
-      inter <<- rbind(inter, paste(sort(unlist(strsplit(as.character(nodes[z,2]),', '))), collapse = ', '))
-      nextI <- digest(paste(sort(unlist(strsplit(as.character(nodes[z,2]), ', '))), collapse = ', '), algo = "md5")
+      sortedInter <- paste(sort(unlist(strsplit(as.character(nodes[z,2]), ', '))), collapse = ', ')
+      nextI <- digest(sortedInter, algo = "md5")
       if(length(spec) == 0){
         coordinates[z,] <<- c(as.numeric(nodes[z, 1]), 1, 1)
         spec[[nextI]] <<- c(1, 1)
@@ -128,15 +127,12 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
       interact <- list()
       cooccure <- list()
       #temp1 <- c()
-      for(v in 1:nrow(inter)){
-        interactions <- unlist(strsplit(unlist(inter[v,1]),', '))
-        #temp1 <- rbind(temp1, gtools::combinations(length(interactions), 2, interactions))
-        for( m in 1:length(interactions)){
-          if(is.null(interact[[interactions[m]]])) interact[[interactions[m]]] <- 1
-          else interact[[interactions[m]]] <- interact[[interactions[m]]] + 1
-        }
+      interactions <- unlist(strsplit(unlist(sortedInter),', '))
+      for(v in 1:length(interactions)){
+        inter[[interactions[v]]] <<- inter[[interactions[v]]] + 1
       }
-      df <- data.frame(unlist(interact))
+      
+      df <- data.frame(unlist(inter[inter!=0]))
       # tmp <- df[,1] / colSums(df)
       # df$loga <- log(tmp)
       # df$piloga <- tmp * log(tmp)
