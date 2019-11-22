@@ -76,7 +76,7 @@ createCooccurrenceMatrix <- function(nodes, links, projectDir, outputDir, dataSo
 createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1){
   # now compute the structural and information theoretic features and persist these
   # 
-  allTokens<-unique(unlist(strsplit(foo$tokens,", ")))
+  allTokens<-unique(unlist(strsplit(nodes$tokens,", ")))
   inter <- setNames(as.list(rep(0,length(allTokens))),allTokens)
   #ent <- data.frame(ww = numeric(0), xx = numeric(0), yy = numeric(0), zz = numeric(0))
   wien <- data.frame(ShannonWiener=numeric(nrow(nodes)),Pielou=numeric(nrow(nodes)),Richness=numeric(nrow(nodes)))
