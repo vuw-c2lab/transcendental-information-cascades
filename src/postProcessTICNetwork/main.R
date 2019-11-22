@@ -3,6 +3,7 @@
 # 
 if (!require(digest)) install.packages('digest')
 if (!require(entropy)) install.packages('entropy')
+if (!require(vegan)) install.packages('vegan')
 
 dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "postProcessTICNetwork"), showWarnings = FALSE)
 
