@@ -163,7 +163,9 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
     
     #add all links to node
     theLinks <- unique(links[which(links[,2] == nodes[z,1]),1:2])
+    print(theLinks)
     for(srclnk in theLinks[,1]){
+      print(c(which(V(g1)$id == srclnk), which(V(g1)$id == as.numeric(nodes[z,1]))))
       g1 <- add_edges(g1, c(which(V(g1)$id == srclnk), which(V(g1)$id == as.numeric(nodes[z,1]))))
     }
     
