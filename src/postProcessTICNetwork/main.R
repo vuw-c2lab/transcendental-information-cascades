@@ -79,44 +79,47 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   casc <- c()
   inter <- c()
   #ent <- data.frame(ww = numeric(0), xx = numeric(0), yy = numeric(0), zz = numeric(0))
-  wien <- c()
+  wien <- data.frame(x=numeric(nrow(nodes)),y=numeric(nrow(nodes)),z=numeric(nrow(nodes)))
   colnames(links) <- c('source', 'target', 'tag')
   
-  coordinates <- c()
+  coordinates <- data.frame(x=numeric(nrow(nodes)),y=numeric(nrow(nodes)),z=numeric(nrow(nodes)))
   spec <- list()
   div = 1
   
   g1 <- make_empty_graph(n = 0, directed = TRUE)
-  struct <- c()
+  struct <- data.frame(diameter=numeric(nrow(nodes)),density=numeric(nrow(nodes)),modularity=numeric(nrow(nodes)))
   props <- c()
-  for(z in 1:nrow(nodes)){
+  z <- 0
+  res <- lapply(nodes, function(x){
+    z <<- z + 1
+    
     print(paste0("# compute seq features up to node ",z))
     if(nodes[z,]$tokens == "" | is.na(nodes[z,]$tokens)){
-      if(nrow(wien) > 0){
+      if(z > 1){
         #ent <- rbind(ent, ent[nrow(ent),])
-        wien <- rbind(wien, wien[nrow(wien),])
+        wien[z,] <<- wien[z-1,]
         
       }else{
         #ent <- rbind(ent, c(0, 1, 0, 1))
-        wien <- rbind(wien, c(0, 1, 1))
+        wien[z,] <<- c(0, 1, 1)
       }
-      coordinates <- rbind(coordinates, c(as.numeric(nodes[z, 1]), 0, 0))
+      coordinates[z,] <<- c(as.numeric(nodes[z, 1]), 0, 0)
       
     }else{
-      inter <- rbind(inter, paste(sort(unlist(strsplit(as.character(nodes[z,2]),', '))), collapse = ', '))
+      inter <<- rbind(inter, paste(sort(unlist(strsplit(as.character(nodes[z,2]),', '))), collapse = ', '))
       nextI <- digest(paste(sort(unlist(strsplit(as.character(nodes[z,2]), ', '))), collapse = ', '), algo = "md5")
       if(length(spec) == 0){
-        coordinates <- rbind(coordinates, c(as.numeric(nodes[z, 1]), 1, 1))
-        spec[[nextI]] <- c(1, 1)
+        coordinates[z,] <<- c(as.numeric(nodes[z, 1]), 1, 1)
+        spec[[nextI]] <<- c(1, 1)
       }
       else{
         if(is.null(spec[[nextI]])){
           spec[[nextI]] <- c(1,div)
-          coordinates <- rbind(coordinates,c(as.numeric(nodes[z,1]),spec[[nextI]][1],div))
-          div <- div+1
+          coordinates[z,] <<- c(as.numeric(nodes[z,1]),spec[[nextI]][1],div)
+          div <<- div+1
         }else{
-          spec[[nextI]] <- c(spec[[nextI]][1]+1,spec[[nextI]][2])
-          coordinates <- rbind(coordinates,c(as.numeric(nodes[z,1]),spec[[nextI]][1],spec[[nextI]][2]))
+          spec[[nextI]] <<- c(spec[[nextI]][1]+1,spec[[nextI]][2])
+          coordinates[z,] <<- c(as.numeric(nodes[z,1]),spec[[nextI]][1],spec[[nextI]][2])
         }
       }
       
@@ -142,12 +145,12 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
       # }
       
       if(nrow(df) == 1){
-        wien <- rbind(wien, c(0, 1, 1))
+        wien[z,] <<- c(0, 1, 1)
       } else{
         H <- vegan::diversity(df[,1])
         S <- nrow(df)
         J <- H/log(S)
-        wien <- rbind(wien,c(H, J, S))
+        wien <<- c(H, J, S)
       }}
     
     #}
@@ -165,8 +168,8 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
     
     #degd <- degree.distribution(g1)
     wtc <- cluster_walktrap(g1)
-    struct <- rbind(struct, c(diameter(g1), edge_density(g1), modularity(wtc)))
-  }
+    struct[z,] <<- c(diameter(g1), edge_density(g1), modularity(wtc))
+  })
   
   #readr::write_csv(as.data.frame(ent), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory1.csv"),col_names = T)
   readr::write_csv(as.data.frame(wien), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory2.csv"),col_names = T)
