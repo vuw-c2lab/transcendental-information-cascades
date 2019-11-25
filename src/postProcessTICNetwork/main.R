@@ -35,8 +35,10 @@ createTICMatrix <- function(nodes, links, projectDir, outputDir, dataSource, tok
   
   colnames(links) <- c("id1","id2","label")
   g <- igraph::graph.data.frame(links,directed = TRUE,vertices = nodes)
-  readr::write_csv(as.data.frame(igraph::as_adjacency_matrix(g, sparse = F)), paste0("../../output/", projectDir,"/",
-                                                                                     outputDir,"/createTIC/TICmatrix.csv"),col_names = T)
+  readr::write_csv(as.data.frame(igraph::as_adjacency_matrix(g, sparse = F)), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICmatrix.csv"),col_names = T)
+  rm(g)
+  rm(links)
+  gc()
 }
 
 createCooccurrenceMatrix <- function(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1){
@@ -300,4 +302,5 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   # lines(m_ln, col=3)
   # lines(m_pois, col=4)
   # #dev.off()
+  gc()
 }
