@@ -713,10 +713,12 @@ postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores
 #allTICs <- allTICs[-which(allTICs=="postProcessTICMultiplex")]
 
 #or just selected
-allTICs <- c("jungle_book-discrete-text-POS-nouns-2019-11-17-06-07-20",
-             "jungle_book-discrete-text-POS-adjectives-2019-11-17-06-09-50",
-             "jungle_book-discrete-text-POS-verbs-2019-11-17-06-08-42",
-             "jungle_book-discrete-text-word2vec-cosinesim-2019-11-17-06-23-43")
+allTICs <- c("primes50k-discrete-tokenised-2019-11-21-17-54-58",
+             "primes-base4-dataset-50k-discrete-tokenised-2019-11-21-20-52-25",
+             "primes-base8-dataset-50k-discrete-tokenised-2019-11-21-20-59-13",
+             "primes-base16-dataset-50k-discrete-tokenised-2019-11-21-21-08-56",
+             "primes-base32-dataset-50k-discrete-tokenised-2019-11-25-17-34-48",
+             "primes-base36-dataset-50k-discrete-tokenised-2019-11-25-17-57-06")
 
 source("../../src/postProcessTICMultiplex/main.R")
 tnsr <- postProcessTICMultiplex(projectDir, outputDir, dataSource, allTICs)

@@ -16,6 +16,7 @@ postProcessTICMultiplex <- function(projectDir, outputDir, dataSource, allTICs, 
   x <- y <- 0
   
   if(z > 1){ # only construct multiplex if more than one layer
+    print(paste0("../../output/",projectDir,"/",allTICs[1],"/createTIC/TICMatrix.csv"))
     firstLayer <- as.matrix(readr::read_csv(paste0("../../output/",projectDir,"/",allTICs[1],"/createTIC/TICMatrix.csv"), col_names = T))
     rownames(firstLayer) <- colnames(firstLayer)
     
