@@ -16,8 +16,7 @@ postProcessTICMultiplex <- function(projectDir, outputDir, dataSource, allTICs, 
   x <- y <- 0
   
   if(z > 1){ # only construct multiplex if more than one layer
-    print(paste0("../../output/",projectDir,"/",allTICs[1],"/createTIC/TICMatrix.csv"))
-    firstLayer <- as.matrix(readr::read_csv(paste0("../../output/",projectDir,"/",allTICs[1],"/createTIC/TICMatrix.csv"), col_names = T))
+    firstLayer <- as.matrix(readr::read_csv(paste0("../../output/",projectDir,"/",allTICs[1],"/createTIC/TICmatrix.csv"), col_names = T))
     rownames(firstLayer) <- colnames(firstLayer)
     
     mplexLayers <- list()
@@ -34,7 +33,7 @@ postProcessTICMultiplex <- function(projectDir, outputDir, dataSource, allTICs, 
     mats <- list()
     
     for(i in 2:z){
-      mats[[i-1]] <- as.matrix(readr::read_csv(paste0("../../output/",projectDir,"/",allTICs[i],"/createTIC/TICMatrix.csv"), col_names = T))
+      mats[[i-1]] <- as.matrix(readr::read_csv(paste0("../../output/",projectDir,"/",allTICs[i],"/createTIC/TICmatrix.csv"), col_names = T))
       links <- readr::read_csv(paste0("../../output/",projectDir,"/",allTICs[i],"/createTIC/links.csv"))
       links$weight <- 1
       mplexLayers[[paste0("L",i)]] <- links[,c(1,2,4)]
@@ -49,7 +48,9 @@ postProcessTICMultiplex <- function(projectDir, outputDir, dataSource, allTICs, 
                                  type1 = "undirected",
                                  as.data.frame(mplexLayers$L2),
                                  as.data.frame(mplexLayers$L3),
-                                 as.data.frame(mplexLayers$L4)
+                                 as.data.frame(mplexLayers$L4),
+                                 as.data.frame(mplexLayers$L5),
+                                 as.data.frame(mplexLayers$L6)
     )
     
     input <- list(nodes = as.data.frame(nodes[,c(1,3)]),
