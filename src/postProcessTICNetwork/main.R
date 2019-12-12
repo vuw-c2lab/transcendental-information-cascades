@@ -34,8 +34,10 @@ createTICMatrix <- function(nodes, links, projectDir, outputDir, dataSource, tok
   # create TIC network matrix and persist matrix
   
   colnames(links) <- c("id1","id2","label")
-  g <- igraph::graph.data.frame(links,directed = TRUE,vertices = nodes)
-  readr::write_csv(as.data.frame(igraph::as_adjacency_matrix(g, sparse = F)), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICmatrix.csv"),col_names = T)
+  groupedLinks <- plyr::count(links, vars=c("id1","id2"))
+  colnames(groupedLinks) <- c("id1","id2","weight")
+  g <- igraph::graph.data.frame(groupedLinks,directed = F,vertices = nodes)
+  readr::write_csv(as.data.frame(igraph::as_adjacency_matrix(g, sparse = F, type = "both", attr = "weight")), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICmatrix.csv"),col_names = T)
   rm(g)
   rm(links)
   gc()
