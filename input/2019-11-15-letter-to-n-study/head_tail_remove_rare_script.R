@@ -40,7 +40,6 @@ setProbs$overallprob <- setProbs$tokenprobs * setProbs$prob
 
 setProbs <- setProbs[order(setProbs$prob),]
 
-primes50k_headRemove1 <- primes50k
 # 1 remove the item with lowest probabiliyty from the set with lowest set probability (do for bottom 5 sets)
 # 
 for(i in 1:20){
@@ -55,15 +54,26 @@ for(i in 1:20){
   write_delim(as.data.frame(primes50k_tailRemove1),paste0("data/primes50k_tailRemove_",i,".txt"),delim = ";",col_names = F)
 }
 
-
+# 4 remove item with lowest probability from set with lowest co bined token probability
+# 
+setProbs <- setProbs[order(setProbs$tokenprobs),]
+for(i in 1:20){
+  primes50k_tailRemove1 <- primes50k
+  nodesToRem <- which(nodes$tokens == setProbs$x[i])
+  print(nodesToRem)
+  for(j in 1:length(nodesToRem)){
+    tokens <- unlist(strsplit(as.character(primes50k_tailRemove1[nodesToRem[j],3]),", "))
+    tokens <- tokens[-which(tokens == setProbs$lowToken[i])]
+    primes50k_tailRemove1[nodesToRem[j],3] <- paste0(tokens,collapse = ", ")
+  }
+  write_delim(as.data.frame(primes50k_tailRemove1),paste0("data/primes50k_tailRemove2_",i,".txt"),delim = ";",col_names = F)
+}
 
 # 2 remove item with highest probability from set with highest set probability
 # 
 # 
 # 3 compare eigenvalue distribution and largest eigenvaue for TIC after these steps
 # 
-# 4 remove item with lowest probability from set with lowest token probability
-# 
-setProbs <- setProbs[order(setProbs$tokenprobs),]
+
 # 
 # 5 remove item with highest probability from set with highest token probability

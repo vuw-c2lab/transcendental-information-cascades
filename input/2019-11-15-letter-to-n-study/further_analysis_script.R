@@ -249,17 +249,19 @@ grangertest(eve ~ pc1, order = 1, data = prime_approx)
 
 # pertubation analysis ------
 
+# this is amtrix A
 A <- as.matrix(readr::read_csv("../../output/2019-11-15-letter-to-n-study/primes50k-discrete-tokenised-2019-11-21-17-54-58/createTIC/TICmatrix.csv"))
 colnames(A) <- c(1:ncol(A))
 rownames(A) <- c(1:ncol(A))
 
+# this is matric A+epsilon (pertubated matrix A, rare event removed)
 B <- as.matrix(readr::read_csv("../../output/2019-11-15-letter-to-n-study/primes50k_tailRemove1-discrete-tokenised-2019-12-11-21-27-11/createTIC/TICmatrix.csv"))
 colnames(B) <- c(1:ncol(B))
 rownames(B) <- c(1:ncol(B))
 
 
 
-### characteristic polynomial and eigenvalue study
+### characteristic polynomial and eigenvalue study of A vs B
 library(polynom)
 library(pracma)
 options(scipen=1000)
