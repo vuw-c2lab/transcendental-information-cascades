@@ -699,7 +699,7 @@ postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores
 
 # REMOVE TAIL FROM PRIME DATASETS FOR PERTUB ANALYSIS ----------------------
 
-# PIPELINE PRIMES WITH k-th bottom removed --------------------------------------------------------------
+# PIPELINE PRIMES WITH k-th bottom removed by set probability --------------------------------------------------------------
 
 ## create TIC
 # get project name from current directory and create output directory for project
@@ -710,6 +710,33 @@ for(i in 1:20){
   # data source
   dataSource <- paste0("primes50k_tailRemove_",i,".txt")
 
+  # select tokeniser
+  tokeniser <- "discrete/tokenised"
+  
+  # create output directories for the different modules in this pipeline
+  outputDir <- paste0(tools::file_path_sans_ext(dataSource),"-",gsub("/","-",tokeniser),"-",format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
+  dir.create(file.path(paste0("../../output/",projectDir), outputDir), showWarnings = T)
+  
+  # run
+  source("../../src/createTIC/main.R")
+  tic <- createTIC(projectDir, outputDir, dataSource, tokeniser)
+  
+  # run TIC network post processing
+  source("../../src/postProcessTICNetwork/main.R")
+  postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
+}
+
+# PIPELINE PRIMES WITH k-th bottom removed by combined token probability probability --------------------------------------------------------------
+
+## create TIC
+# get project name from current directory and create output directory for project
+for(i in 1:20){
+  projectDir <- basename(getwd())
+  dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
+  
+  # data source
+  dataSource <- paste0("primes50k_tailRemove2_",i,".txt")
+  
   # select tokeniser
   tokeniser <- "discrete/tokenised"
   
