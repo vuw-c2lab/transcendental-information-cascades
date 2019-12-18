@@ -6,7 +6,7 @@ if (!require(gtools)) install.packages('gtools')
 if (!require(tools)) install.packages('tools')
 if (!require(tuneR)) install.packages('tuneR')
 
-setwd("~/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/input/2019-11-15-letter-to-n-study/")
+setwd("/home/STAFF/luczakma/researchdata2/fair/transcendental-information-cascades/input/2019-11-15-letter-to-n-study/")
 
 # plot combined data ------
 
@@ -199,7 +199,7 @@ ggplot(data=prime_approx.m,
                1:nrow(prime_approx),
                1:nrow(prime_approx),
                1:nrow(prime_approx)
-               ), y=value, group=variable)) +
+       ), y=value, group=variable)) +
   geom_line(linetype=c(rep("solid",nrow(prime_approx)),
                        rep("dashed",nrow(prime_approx)),
                        rep("dotted",nrow(prime_approx)),
@@ -208,7 +208,7 @@ ggplot(data=prime_approx.m,
                        rep("F1",nrow(prime_approx)),
                        rep("1F",nrow(prime_approx)),
                        rep("12345678",nrow(prime_approx))
-                       )) + 
+  )) + 
   theme_apa() + scale_x_continuous(trans='log10')
 
 prime_approx <- data.frame(pc1=p_count,pc2=c(Inf,p_count2),eve=plot_data$ShWiener,eve4=plot_data$ShWiener4,eve8=plot_data$ShWiener8,eve16=plot_data$ShWiener16,eve32=plot_data$ShWiener32,eve36=plot_data$ShWiener36)
@@ -233,7 +233,7 @@ ggplot(data=prime_approx.m,
                        rep("12345678",nrow(prime_approx))
   )) + 
   theme_apa() + scale_x_continuous(trans='log10')
-  #geom_text(x=10, y=1.5, label=paste0(expression(pi(x)))) + geom_text(x=10, y=0.5, label=paste0(expression(pi(x))))
+#geom_text(x=10, y=1.5, label=paste0(expression(pi(x)))) + geom_text(x=10, y=0.5, label=paste0(expression(pi(x))))
 
 
 
@@ -249,34 +249,83 @@ grangertest(eve ~ pc1, order = 1, data = prime_approx)
 
 # pertubation analysis ------
 
+### characteristic polynomial and eigenvalue study of A vs B
+library(polynom)
+library(pracma)
+library(Matrix)
+library(RSpectra)
+options(scipen=1000)
+
+# how many eigenvalues?
+k <- 200
+
+dirs <- list.dirs("../../output/2019-11-15-letter-to-n-study",full.names = F,recursive = F)
+dirs<-dirs[27:46]
+
 # this is amtrix A
 A <- as.matrix(readr::read_csv("../../output/2019-11-15-letter-to-n-study/primes50k-discrete-tokenised-2019-11-21-17-54-58/createTIC/TICmatrix.csv"))
 colnames(A) <- c(1:ncol(A))
 rownames(A) <- c(1:ncol(A))
+A2 = as(A, "dsCMatrix")
+rm(A)
 
-# this is matric A+epsilon (pertubated matrix A, rare event removed)
-B <- as.matrix(readr::read_csv("../../output/2019-11-15-letter-to-n-study/primes50k_tailRemove1-discrete-tokenised-2019-12-11-21-27-11/createTIC/TICmatrix.csv"))
-colnames(B) <- c(1:ncol(B))
-rownames(B) <- c(1:ncol(B))
+print("### for A")
+eValsA_small <- eigs(A2, k, opts = list(retvec = FALSE), sigma = 0)$values
+print(paste0("smallest EV: ",tail(eValsA_small,1)))
+eValsA <- eigs(A2, k, opts = list(retvec = FALSE))$values
+print(paste0("largest EV: ",eValsA[1]))
+print(paste0("Condition number (with abs): ",abs(eValsA[1])/abs(tail(eValsA_small,1))))
+print(paste0("Condition number: ",eValsA[1]/tail(eValsA_small,1)))
+print("###")
+readr::write_csv(as.data.frame(eValsA),"/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenvals.csv")
+readr::write_csv(as.data.frame(tail(eValsA_small,1)),"/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenvals_small.csv")
+readr::write_csv(as.data.frame(diff(eValsA)),"/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigengaps.csv")
+readr::write_csv(rbind(data.frame(x="Condition number (with abs): ",y=abs(eValsA[1])/abs(tail(eValsA_small,1))),
+                       data.frame(x="Condition number: ",y=eValsA[1]/tail(eValsA_small,1)),
+                       data.frame(x="smallest EV :",y=tail(eValsA_small,1))),
+                 "/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenMeta.csv")
 
+for(i in dirs){
+  # this is matric A+epsilon (pertubated matrix A, rare event removed)
+  B <- as.matrix(readr::read_csv(paste0("../../output/2019-11-15-letter-to-n-study/",i,"/createTIC/TICmatrix.csv")))
+  colnames(B) <- c(1:ncol(B))
+  rownames(B) <- c(1:ncol(B))
+  B2 = as(B, "dsCMatrix")
+  rm(B)
+  
+  #A <- matrix(c(1,1,0,0,1,0,0,0,1), 3, 3, byrow=TRUE)
+  #matB <- B[1:5000,1:5000]
+  # eValsB <- eigen(B,symmetric = T)$values
+  
+  print(paste0("### for B",i))
+  eValsB_small <- eigs(B2, k, opts = list(retvec = FALSE), sigma = 0)$values
+  print(paste0("smallest EV: ",tail(eValsB_small,1)))
+  eValsB <- eigs(B2, k, opts = list(retvec = FALSE))$values
+  print(paste0("largest EV: ",eValsB[1]))
+  print(paste0("Condition number (with abs): ",abs(eValsB[1])/abs(tail(eValsB_small,1))))
+  print(paste0("Condition number: ",eValsB[1]/tail(eValsB_small,1)))
+  print("###")
+  
+  #eigenvalue difference
+  png(filename = paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"evalDiff.png"))
+  plot(eValsA - eValsB,type='l',main=paste0("Eigenvalue Difference Tail Remove ",i))
+  dev.off()
+  eDiffSum <- sum(abs(eValsA - eValsB))
+  print(paste0("Eigenvalue difference evalA-evalB: ",i," ",eDiffSum))
+  png(filename = paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"evalDiff_CDF.png"))
+  plot(ecdf(eValsA - eValsB),main=paste0("Eigenvalue Difference CDF Tail Remove ",i))
+  dev.off()
+  
+  readr::write_csv(as.data.frame(eValsB),paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigenvals.csv"))
+  readr::write_csv(as.data.frame(tail(eValsB_small,1)),paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigenvals_small.csv"))
+  readr::write_csv(as.data.frame(diff(eValsB)),paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigengaps.csv"))
+  readr::write_csv(rbind(data.frame(x="Condition number (with abs): ",y=abs(eValsB[1])/abs(tail(eValsB_small,1))),
+                         data.frame(x="Condition number: ",y=eValsB[1]/tail(eValsB_small,1)),
+                         data.frame(x=":smalles EV ",y=tail(eValsB_small,1))),
+                   paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigenMeta.csv"))
+  
+}
 
-
-### characteristic polynomial and eigenvalue study of A vs B
-library(polynom)
-library(pracma)
-options(scipen=1000)
-
-#A <- matrix(c(1,1,0,0,1,0,0,0,1), 3, 3, byrow=TRUE)
-
-matA <- A[1:5000,1:5000]
-eValsA <- eigen(matA,symmetric = T)$values
-
-matB <- B[1:5000,1:5000]
-eValsB <- eigen(matB,symmetric = T)$values
-#eigenvalue difference
-plot(eValsA - eValsB,type='l')
-eDiffSum <- sum(abs(eValsA - eValsB))
-plot(ecdf(eValsA - eValsB))
 
 plot(eVals)
 plot(eVals,log='x')
