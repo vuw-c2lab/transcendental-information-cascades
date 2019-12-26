@@ -1,6 +1,7 @@
 
 # PREAMBLE ----------------------------------------------------------------
-
+set.seed(3011)
+RNGkind("L'Ecuyer-CMRG")
 dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "createTIC"), showWarnings = FALSE)
 
 

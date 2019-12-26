@@ -260,7 +260,7 @@ options(scipen=1000)
 k <- 200
 
 dirs <- list.dirs("../../output/2019-11-15-letter-to-n-study",full.names = F,recursive = F)
-dirs<-dirs[27:46]
+dirs<-c(dirs[21:60],dirs[93:112])
 
 # this is amtrix A
 A <- as.matrix(readr::read_csv("../../output/2019-11-15-letter-to-n-study/primes50k-discrete-tokenised-2019-11-21-17-54-58/createTIC/TICmatrix.csv"))
@@ -270,19 +270,21 @@ A2 = as(A, "dsCMatrix")
 rm(A)
 
 print("### for A")
-eValsA_small <- eigs(A2, k, opts = list(retvec = FALSE), sigma = 0)$values
-print(paste0("smallest EV: ",tail(eValsA_small,1)))
-eValsA <- eigs(A2, k, opts = list(retvec = FALSE))$values
-print(paste0("largest EV: ",eValsA[1]))
-print(paste0("Condition number (with abs): ",abs(eValsA[1])/abs(tail(eValsA_small,1))))
-print(paste0("Condition number: ",eValsA[1]/tail(eValsA_small,1)))
+eValsA_small <- eigs(A2, k, opts = list(retvec = TRUE), sigma = 0)
+print(paste0("smallest EV: ",tail(eValsA_small$values,1)))
+eValsA <- eigs(A2, k, opts = list(retvec = TRUE))
+print(paste0("largest EV: ",eValsA$values[1]))
+print(paste0("Condition number (with abs): ",abs(eValsA$values[1])/abs(tail(eValsA_small$values,1))))
+print(paste0("Condition number: ",eValsA$values[1]/tail(eValsA_small$values,1)))
 print("###")
-readr::write_csv(as.data.frame(eValsA),"/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenvals.csv")
-readr::write_csv(as.data.frame(tail(eValsA_small,1)),"/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenvals_small.csv")
-readr::write_csv(as.data.frame(diff(eValsA)),"/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigengaps.csv")
-readr::write_csv(rbind(data.frame(x="Condition number (with abs): ",y=abs(eValsA[1])/abs(tail(eValsA_small,1))),
-                       data.frame(x="Condition number: ",y=eValsA[1]/tail(eValsA_small,1)),
-                       data.frame(x="smallest EV :",y=tail(eValsA_small,1))),
+readr::write_csv(as.data.frame(eValsA$values),"/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenvals.csv")
+readr::write_csv(as.data.frame(eValsA$vectors),"/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenvecs.csv")
+readr::write_csv(as.data.frame(eValsA_small$values),"/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenvals_small.csv")
+readr::write_csv(as.data.frame(eValsA_small$vectors),"/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenvecs_small.csv")
+readr::write_csv(as.data.frame(diff(eValsA$values)),"/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigengaps.csv")
+readr::write_csv(rbind(data.frame(x="Condition number (with abs): ",y=abs(eValsA$values[1])/abs(tail(eValsA_small$values,1))),
+                       data.frame(x="Condition number: ",y=eValsA$values[1]/tail(eValsA_small$values,1)),
+                       data.frame(x="smallest EV :",y=tail(eValsA_small$values,1))),
                  "/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenMeta.csv")
 
 for(i in dirs){
@@ -298,30 +300,32 @@ for(i in dirs){
   # eValsB <- eigen(B,symmetric = T)$values
   
   print(paste0("### for B",i))
-  eValsB_small <- eigs(B2, k, opts = list(retvec = FALSE), sigma = 0)$values
-  print(paste0("smallest EV: ",tail(eValsB_small,1)))
-  eValsB <- eigs(B2, k, opts = list(retvec = FALSE))$values
-  print(paste0("largest EV: ",eValsB[1]))
-  print(paste0("Condition number (with abs): ",abs(eValsB[1])/abs(tail(eValsB_small,1))))
-  print(paste0("Condition number: ",eValsB[1]/tail(eValsB_small,1)))
+  eValsB_small <- eigs(B2, k, opts = list(retvec = TRUE), sigma = 0)
+  print(paste0("smallest EV: ",tail(eValsB_small$values,1)))
+  eValsB <- eigs(B2, k, opts = list(retvec = TRUE))
+  print(paste0("largest EV: ",eValsB$values[1]))
+  print(paste0("Condition number (with abs): ",abs(eValsB$values[1])/abs(tail(eValsB_small$values,1))))
+  print(paste0("Condition number: ",eValsB$values[1]/tail(eValsB_small$values,1)))
   print("###")
   
   #eigenvalue difference
   png(filename = paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"evalDiff.png"))
-  plot(eValsA - eValsB,type='l',main=paste0("Eigenvalue Difference Tail Remove ",i))
+  plot(eValsA$values - eValsB$values,type='l',main=paste0("Eigenvalue Difference Tail Remove ",i))
   dev.off()
-  eDiffSum <- sum(abs(eValsA - eValsB))
+  eDiffSum <- sum(abs(eValsA$values - eValsB$values))
   print(paste0("Eigenvalue difference evalA-evalB: ",i," ",eDiffSum))
   png(filename = paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"evalDiff_CDF.png"))
-  plot(ecdf(eValsA - eValsB),main=paste0("Eigenvalue Difference CDF Tail Remove ",i))
+  plot(ecdf(eValsA$values - eValsB$values),main=paste0("Eigenvalue Difference CDF Tail Remove ",i))
   dev.off()
   
-  readr::write_csv(as.data.frame(eValsB),paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigenvals.csv"))
-  readr::write_csv(as.data.frame(tail(eValsB_small,1)),paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigenvals_small.csv"))
-  readr::write_csv(as.data.frame(diff(eValsB)),paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigengaps.csv"))
-  readr::write_csv(rbind(data.frame(x="Condition number (with abs): ",y=abs(eValsB[1])/abs(tail(eValsB_small,1))),
-                         data.frame(x="Condition number: ",y=eValsB[1]/tail(eValsB_small,1)),
-                         data.frame(x=":smalles EV ",y=tail(eValsB_small,1))),
+  readr::write_csv(as.data.frame(eValsB$values),paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigenvals.csv"))
+  readr::write_csv(as.data.frame(eValsB$vectors),paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigenvecs.csv"))
+  readr::write_csv(as.data.frame(eValsB_small$values),paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigenvals_small.csv"))
+  readr::write_csv(as.data.frame(eValsB_small$vectors),paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigenvecs_small.csv"))
+  readr::write_csv(as.data.frame(diff(eValsB$values)),paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigengaps.csv"))
+  readr::write_csv(rbind(data.frame(x="Condition number (with abs): ",y=abs(eValsB$values[1])/abs(tail(eValsB_small$values,1))),
+                         data.frame(x="Condition number: ",y=eValsB$values[1]/tail(eValsB_small$values,1)),
+                         data.frame(x=":smalles EV ",y=tail(eValsB_small$values,1))),
                    paste0("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/",i,"-eigenMeta.csv"))
   
 }
@@ -562,3 +566,26 @@ pettitt.test(TS)
 plot(diff(prime_approx$eve36 - prime_approx$pc2),type='l')
 lines(diff(prime_approx$eve16 - prime_approx$pc2),col="red")
 
+
+
+
+
+
+
+# rinform
+# KL Divergence
+# 
+
+p <- Dist(tokenProbsPrimes$freq)
+q <- Dist(tokenProbsRandoms$freq)
+# for probability
+shannon_relative_entropy(p, q, b = 2)
+# for series
+re <- relative_entropy(xs, ys, local = T)
+t(re)
+
+# Block Entropy
+# 
+series <- coord_primes$diversity
+N <- c(1:5)
+block_entropy(series, k = 2)
