@@ -118,12 +118,19 @@ plot(ts(sinai.map$x))
 plot(r.ts,type = 'l')
 
 
-takens <- nonlinearTseries::buildTakens(diff(head(coord_primes$diversity,50000)), embedding.dim = 3, time.lag = 1)
+takens <- nonlinearTseries::buildTakens(coord_primes_random$specificity, embedding.dim = 3, time.lag = 1)
 plot(takens, pch='.')
 lines3D(takens[,1],takens[,2],takens[,3])
 
 #rqa.analysis=rqa(takens=takens,radius = 3,time.lag = 2)
-rqa.analysis=rqa(time.series = diff(head(coord_primes$specificity,50000)),radius = 3,time.lag = 1)
+rqa.analysis=rqa(time.series = coord_primes$specificity,radius = 2,time.lag = 1)
 plot(rqa.analysis)
 maxLyapunov(diff(head(coord_primes$specificity,50000)),radius = 3)
 #recurr(diff(coord_primes$diversity), m=3, d=2, start.time=0, end.time=2000)
+#
+# lyapunov spectrum
+
+jacob<-DChaos::jacobi(coord_primes$specificity,M0=3,M1=7,doplot=FALSE)
+deriv<-jacob$Jacobian.net
+lyapu<-DChaos::lyapunov.spec(deriv,blocking="FULL")
+show(lyapu$Exponent)

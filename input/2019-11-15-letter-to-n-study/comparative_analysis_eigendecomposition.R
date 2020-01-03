@@ -9,6 +9,8 @@ library(ggrepel)
 library(scales)
 library(GGally)
 library(rinform)
+library(PerformanceAnalytics)
+library(fractal)
 options(scipen = 10000)
 
 set.seed(3011)
@@ -16,17 +18,71 @@ RNGkind("L'Ecuyer-CMRG")
 
 
 # preprocessing the result dataset ------
+
+setwd("~/OneDrive - Victoria University of Wellington - STAFF/RScripts/2019-12-letter-to-N-final-analysis/")
 setwd("/home/STAFF/luczakma/RProjects/2019-letter-to-nature-primes/figures/")
+
 
 fils <- list.files(".",full.names = F, pattern = "-eigenvals.csv")
 fils <- fils[-which(fils == "primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenvals.csv")]
+fils <- fils[-which(fils == "randomnumbers50k-discrete-tokenised-2019-11-21-21-16-27-eigenvals.csv")]
+fils <- fils[-which(fils == "primes50k-random-discrete-tokenised-2019-11-21-20-42-39-eigenvals.csv")]
+
+primeseVals <- matrix(nrow = 200,ncol = 40)
+primesRandeVals <- matrix(nrow = 200,ncol = 40)
+randeVals <- matrix(nrow = 200,ncol = 40)
+
 for(fil in 1:length(fils)){
+  varName <- unlist(strsplit(fils[fil],"-"))[1]
   assign(paste0("R",fil),
-          read_csv(paste0(fils[fil])))
+         read_csv(paste0(fils[fil])))
+  
+  tmpRunId <- unlist(strsplit(varName,"_"))
+  tmpeVals <- read_csv(paste0(fils[fil]))
+  tmpeVals <- unlist(tmpeVals[,1])
+  names(tmpeVals) <- NULL
+  if(tmpRunId[1] == "random50k"){
+    if(tmpRunId[2]=="headRemove") randeVals[,(41-as.numeric(tmpRunId[3]))] <- tmpeVals
+    else randeVals[,as.numeric(tmpRunId[3])] <- tmpeVals
+  } else if(tmpRunId[1] == "primesrandom50k"){
+    if(tmpRunId[2]=="headRemove") primesRandeVals[,(41-as.numeric(tmpRunId[3]))] <- tmpeVals
+    else primesRandeVals[,as.numeric(tmpRunId[3])] <- tmpeVals
+  } else{
+    if(tmpRunId[2]=="headRemove") primeseVals[,(41-as.numeric(tmpRunId[3]))] <- tmpeVals
+    else primeseVals[,as.numeric(tmpRunId[3])] <- tmpeVals
+  }
 }
 
-orig.evals <- read_csv("primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenvals.csv")
+primes.orig.evals <- read_csv("primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenvals.csv")
+primes.orig.meta <- read_csv("primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenMeta.csv")
 
+orig.evals <- read_csv("primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenvals.csv")
+orig.meta <- read_csv("primes50k-discrete-tokenised-2019-11-21-17-54-58-eigenMeta.csv")
+
+primesEvalVar <- list()
+randEvalVar <- list()
+primesRandEvalVar <- list()
+
+for(k in 1:40){
+  primesEvalVar[k] <- var(primes.orig.evals,primeseVals[,k])
+}
+
+primes.rand.evals <- read_csv("primes50k-random-discrete-tokenised-2019-11-21-20-42-39-eigenvals.csv")
+primes.rand.meta <- read_csv("primes50k-random-discrete-tokenised-2019-11-21-20-42-39-eigenMeta.csv")
+
+for(k in 1:40){
+  primesRandEvalVar[k] <- var(primes.rand.evals,primesRandeVals[,k])
+}
+
+randnums.evals <- read_csv("randomnumbers50k-discrete-tokenised-2019-11-21-21-16-27-eigenvals.csv")
+randnums.meta <- read_csv("randomnumbers50k-discrete-tokenised-2019-11-21-21-16-27-eigenMeta.csv")
+
+for(k in 1:40){
+  randEvalVar[k] <- var(randnums.evals,randeVals[,k])
+}
+
+
+# resdata creation ------
 # 
 # plot(orig.evals$`eValsA$values` - R1$`eValsB$values`,pch='.')
 # 
@@ -112,47 +168,19 @@ for(i in 1:length(fils)){
   plot(distr,type='l')
   
   coords <- read.csv(paste0("output/2019-11-15-letter-to-n-study/",gsub("\\-eigenvals\\.csv","",fils[i]),"/createTIC/TICCoordinates.csv"),stringsAsFactors = F)
-  lapSpec <-  maxLyapunov(diff(head(coords$specificity,50000)),min.embedding.dim=2,
-                                    max.embedding.dim=12,
-                                    time.lag=1,
-                                    radius=2,theiler.window=3,
-                                    min.neighs=10,min.ref.points=5,
-                                    max.time.steps=500,do.plot=F)
-  if(length(as.numeric(names(which(rowSums(lapSpec$s.function) > 0 & !is.infinite(rowSums(lapSpec$s.function))))))>0){
-    toTest <- as.numeric(names(which(rowSums(lapSpec$s.function) > 0 & !is.infinite(rowSums(lapSpec$s.function)))))
-    if(length(toTest) ==1){
-      if(toTest[1]==12) toTest <- c(11,12)
-      else toTest <- c(toTest,toTest[1]+1)
-    }
-    lapSpec <- estimate(lapSpec,
-                        regression.range = c(10,490),
-                        use.embeddings=toTest,
-                        do.plot = F)
-  } else {
-    lapSpec <- Inf
-  }
   
+  #hurstSpec <- fractal::hurstSpec(cumsum(coords$specificity-mean(coords$specificity)),method = "smoothed",sdf.method = "multitaper")
+  z <- fractal::lyapunov(cumsum(coords$specificity-mean(coords$specificity)))
+  lapSpec <- max(c(unlist(z[[1]]),unlist(z[[2]]),unlist(z[[3]])))
+  #corrDimSpec <- fractal::corrDim(cumsum(coords$specificity-mean(coords$specificity)))
   
-  lapDiv <- maxLyapunov(diff(head(coords$diversity,50000)),min.embedding.dim=2,
-                                    max.embedding.dim=12,
-                                    time.lag=1,
-                                    radius=2,theiler.window=3,
-                                    min.neighs=10,min.ref.points=5,
-                                    max.time.steps=500,do.plot=F)
-  if(length(as.numeric(names(which(rowSums(lapDiv$s.function) > 0 & !is.infinite(rowSums(lapDiv$s.function))))))>0){
-    toTest <- as.numeric(names(which(rowSums(lapDiv$s.function) > 0 & !is.infinite(rowSums(lapDiv$s.function)))))
-    if(length(toTest) ==1){
-      if(toTest[1]==12) toTest <- c(11,12)
-      else toTest <- c(toTest,toTest[1]+1)
-    }
-    lapDiv <- estimate(lapDiv,regression.range = c(10,490),use.embeddings=toTest,do.plot = F)
-  } else {
-    lapDiv <- Inf
-  }
+  z <- fractal::lyapunov(cumsum(coords$diversity-mean(coords$diversity)))
+  lapDiv <- max(c(unlist(z[[1]]),unlist(z[[2]]),unlist(z[[3]])))
   
-  eDimSpec <- estimateEmbeddingDim(diff(head(coords$specificity,50000)))
-  eDimDiv <- estimateEmbeddingDim(diff(head(coords$diversity,50000)))
-  rqa.analysis=rqa(time.series = diff(head(coords$specificity,50000)),radius = 3,time.lag = 1)
+  eDimSpec <- estimateEmbeddingDim(cumsum(coords$specificity-mean(coords$specificity)))
+  eDimDiv <- estimateEmbeddingDim(cumsum(coords$diversity-mean(coords$diversity)))
+  
+  rqa.analysis=rqa(time.series = cumsum(coords$specificity-mean(coords$specificity)),radius = 3,time.lag = 1)
   recPercSpec <- rqa.analysis$REC
   recDetSpec <- rqa.analysis$DET
   recLamSpec <- rqa.analysis$LAM
@@ -168,7 +196,7 @@ for(i in 1:length(fils)){
   recRateSpecMean <- mean(rqa.analysis$recurrenceRate)
   recRateSpecMedian <- median(rqa.analysis$recurrenceRate)
   recRateSpecSd <- sd(rqa.analysis$recurrenceRate)
-  rqa.analysis=rqa(time.series = diff(head(coords$diversity,50000)),radius = 3,time.lag = 1)
+  rqa.analysis=rqa(time.series = cumsum(coords$diversity-mean(coords$diversity)),radius = 3,time.lag = 1)
   recPercDiv <- rqa.analysis$REC
   recDetDiv <- rqa.analysis$DET
   recLamDiv <- rqa.analysis$LAM
@@ -313,50 +341,50 @@ for(i in 1:length(fils)){
   
   resData <- rbind(resData,
                    data.frame(runData=runData,
-                     runType=runType,
-                     runId=runId,
-                     pLawAlpha=m_bl$pars,
-                     pLawXMin=m_bl$xmin,
-                     logNormMu=m_ln$pars[1],
-                     logNormSigma=m_ln$pars[2],
-                     logNormXMin=m_ln$xmin,
-                     conditionNumber=meta$y[1],
-                     smallestEV=meta$y[3],
-                     largestEV=evals$x[1],
-                     lapSpec=lapSpec,
-                     lapDiv=lapDiv,
-                     eDimSpec=eDimSpec,
-                     eDimDiv=eDimDiv,
-                     recPercSpec=recPercSpec,
-                     recDetSpec=recDetSpec,
-                     recLamSpec=recLamSpec,
-                     recRatioSpec=recRatioSpec,
-                     recLmaxSpec=recLmaxSpec,
-                     recLmeanSpec=recLmeanSpec,
-                     recVmaxSpec=recVmaxSpec,
-                     recVmeanSpec=recVmeanSpec,
-                     recEntropySpec=recEntropySpec,
-                     recTrendSpec=recTrendSpec,
-                     recRateSpecMin=recRateSpecMin,
-                     recRateSpecMax=recRateSpecMax,
-                     recRateSpecMean=recRateSpecMean,
-                     recRateSpecMedian=recRateSpecMedian,
-                     recRateSpecSd=recRateSpecSd,
-                     recPercDiv=recPercDiv,
-                     recDetDiv=recDetDiv,
-                     recLamDiv=recLamDiv,
-                     recRatioDiv=recRatioDiv,
-                     recLmaxDiv=recLmaxDiv,
-                     recLmeanDiv=recLmeanDiv,
-                     recVmaxDiv=recVmaxDiv,
-                     recVmeanDiv=recVmeanDiv,
-                     recEntropyDiv=recEntropyDiv,
-                     recTrendDiv=recTrendDiv,
-                     recRateDivMin=recRateDivMin,
-                     recRateDivMax=recRateDivMax,
-                     recRateDivMean=recRateDivMean,
-                     recRateDivMedian=recRateDivMedian,
-                     recRateDivSd=recRateDivSd)
+                              runType=runType,
+                              runId=runId,
+                              pLawAlpha=m_bl$pars,
+                              pLawXMin=m_bl$xmin,
+                              logNormMu=m_ln$pars[1],
+                              logNormSigma=m_ln$pars[2],
+                              logNormXMin=m_ln$xmin,
+                              conditionNumber=meta$y[1],
+                              smallestEV=meta$y[3],
+                              largestEV=evals$x[1],
+                              lapSpec=lapSpec,
+                              lapDiv=lapDiv,
+                              eDimSpec=eDimSpec,
+                              eDimDiv=eDimDiv,
+                              recPercSpec=recPercSpec,
+                              recDetSpec=recDetSpec,
+                              recLamSpec=recLamSpec,
+                              recRatioSpec=recRatioSpec,
+                              recLmaxSpec=recLmaxSpec,
+                              recLmeanSpec=recLmeanSpec,
+                              recVmaxSpec=recVmaxSpec,
+                              recVmeanSpec=recVmeanSpec,
+                              recEntropySpec=recEntropySpec,
+                              recTrendSpec=recTrendSpec,
+                              recRateSpecMin=recRateSpecMin,
+                              recRateSpecMax=recRateSpecMax,
+                              recRateSpecMean=recRateSpecMean,
+                              recRateSpecMedian=recRateSpecMedian,
+                              recRateSpecSd=recRateSpecSd,
+                              recPercDiv=recPercDiv,
+                              recDetDiv=recDetDiv,
+                              recLamDiv=recLamDiv,
+                              recRatioDiv=recRatioDiv,
+                              recLmaxDiv=recLmaxDiv,
+                              recLmeanDiv=recLmeanDiv,
+                              recVmaxDiv=recVmaxDiv,
+                              recVmeanDiv=recVmeanDiv,
+                              recEntropyDiv=recEntropyDiv,
+                              recTrendDiv=recTrendDiv,
+                              recRateDivMin=recRateDivMin,
+                              recRateDivMax=recRateDivMax,
+                              recRateDivMean=recRateDivMean,
+                              recRateDivMedian=recRateDivMedian,
+                              recRateDivSd=recRateDivSd)
   )
 }
 
@@ -479,12 +507,75 @@ setProbs$overallprob <- setProbs$tokenprobs * setProbs$prob
 setProbsRandoms <- setProbs
 setProbsRandoms <- setProbsRandoms[order(-setProbsRandoms$prob),]
 
+
+links <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/primes50k-random-discrete-tokenised-2019-11-21-20-42-39/createTIC/links.csv"),progress = F,col_types = cols())
+tokenProbs <- plyr::count(as.character(links$token))
+tokenProbs$prob <- as.numeric(tokenProbs$freq)/nrow(links)
+
+tokenProbsPrimes <- tokenProbs
+
+
+nodes <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/primes50k-random-discrete-tokenised-2019-11-21-20-42-39/createTIC/nodes.csv"),progress = F,col_types = cols())
+nodes <- nodes[which(nodes$tokens != ""),]
+setProbs <- plyr::count(nodes$tokens)
+setProbs$prob <- as.numeric(setProbs$freq)/nrow(nodes)
+distr <- plyr::count(setProbs$freq)
+
+comProbs <- apply(setProbs,1,function(x){
+  tokens <- unlist(strsplit(as.character(x[1]),", "))
+  product <- c()
+  lowToken <- list(NULL,NULL)
+  highToken <- list(NULL,NULL)
+  for(i in tokens){
+    if(is.null(lowToken[[2]])){
+      lowToken[[1]] <- tokenProbs[which(tokenProbs$x==i),1]
+      lowToken[[2]] <- tokenProbs[which(tokenProbs$x==i),3]
+    } else if(lowToken[[2]] > tokenProbs[which(tokenProbs$x==i),3]){
+      lowToken[[1]] <- tokenProbs[which(tokenProbs$x==i),1]
+      lowToken[[2]] <- tokenProbs[which(tokenProbs$x==i),3]
+    }
+    
+    if(is.null(highToken[[2]])){
+      highToken[[1]] <- tokenProbs[which(tokenProbs$x==i),1]
+      highToken[[2]] <- tokenProbs[which(tokenProbs$x==i),3]
+    } else if(highToken[[2]] < tokenProbs[which(tokenProbs$x==i),3]){
+      highToken[[1]] <- tokenProbs[which(tokenProbs$x==i),1]
+      highToken[[2]] <- tokenProbs[which(tokenProbs$x==i),3]
+    }
+    
+    product <- c(product,tokenProbs[which(tokenProbs$x==i),3])
+  }
+  res <- list(prod(product),lowToken[[1]],highToken[[1]])
+  res
+})
+
+setProbs$tokenprobs <- sapply(comProbs,function(x){
+  x[[1]]
+})
+
+setProbs$lowToken <- sapply(comProbs,function(x){
+  x[[2]]
+})
+
+setProbs$highToken <- sapply(comProbs,function(x){
+  x[[3]]
+})
+
+setProbs$overallprob <- setProbs$tokenprobs * setProbs$prob
+
+setProbsPrimesRand <- setProbs
+setProbsPrimesRand <- setProbsPrimesRand[order(-setProbsPrimesRand$prob),]
+
+
 # analysisng the result dataset -----
 
 primesTailProbs <- rev(tail(setProbsPrimes$prob,20))
 primesHeadProbs <- rev(head(setProbsPrimes$prob,20))
 randomTailProbs <- rev(tail(setProbsRandoms$prob,20))
 randomHeadProbs <- rev(head(setProbsRandoms$prob,20))
+randomPrimesTailProbs <- rev(tail(setProbsPrimesRand$prob,20))
+randomPrimesHeadProbs <- rev(head(setProbsPrimesRand$prob,20))
+
 
 resData <- read_csv("~/OneDrive - Victoria University of Wellington - STAFF/RScripts/2019-12-letter-to-N-final-analysis/resData.csv")
 
@@ -504,20 +595,32 @@ randomResData$axisTicks <- 0
 randomResData$axisTicks[1:20] <- randomResData$runId[1:20] - 21
 randomResData$axisTicks[21:40] <- randomResData$runId[21:40] - 20
 
+randomPrimesResData <- resData[which(resData$runData=="primesrandom50k"),]
+randomPrimesResData[which(randomPrimesResData$runType=="headRemove"),]$runId <- 41-randomPrimesResData[which(randomPrimesResData$runType=="headRemove"),]$runId
+randomPrimesResData <- randomPrimesResData[order(randomPrimesResData$runId),]
+randomPrimesResData$axisTicks <- 0
+randomPrimesResData$axisTicks[1:20] <- randomPrimesResData$runId[1:20] - 21
+randomPrimesResData$axisTicks[21:40] <- randomPrimesResData$runId[21:40] - 20
+
 primesResData$setProb <- c(primesTailProbs,primesHeadProbs)
 randomResData$setProb <- c(randomTailProbs,randomHeadProbs)
+randomPrimesResData$setProb <- c(randomPrimesTailProbs,randomPrimesHeadProbs)
 
-chart.Correlation(primesResData[,c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40,48)],histogram = T, pch=19, main="Primes")
-chart.Correlation(randomResData[,c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40,48)],histogram = T, pch=19, main="Random numbers")
+chart.Correlation(primesResData[,c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40)],histogram = T, pch=19, main="Primes")
+chart.Correlation(randomResData[,c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40)],histogram = T, pch=19, main="Random numbers")
+chart.Correlation(randomPrimesResData[,c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40)],histogram = T, pch=19, main="Primes")
 
-chart.Correlation(primesResData[which(primesResData$runType=="headRemove"),c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40,48)],histogram = T, pch=19)
-chart.Correlation(primesResData[which(primesResData$runType=="tailRemove"),c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40,48)],histogram = T, pch=19)
+chart.Correlation(primesResData[which(primesResData$runType=="headRemove"),c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40)],histogram = T, pch=19)
+chart.Correlation(primesResData[which(primesResData$runType=="tailRemove"),c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40)],histogram = T, pch=19)
 
-chart.Correlation(randomResData[which(randomResData$runType=="headRemove"),c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40,48)],histogram = T, pch=19)
-chart.Correlation(randomResData[which(randomResData$runType=="tailRemove"),c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40,48)],histogram = T, pch=19)
+chart.Correlation(randomResData[which(randomResData$runType=="headRemove"),c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40)],histogram = T, pch=19)
+chart.Correlation(randomResData[which(randomResData$runType=="tailRemove"),c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40)],histogram = T, pch=19)
+
+chart.Correlation(randomPrimesResData[which(randomPrimesResData$runType=="headRemove"),c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40)],histogram = T, pch=19)
+chart.Correlation(randomPrimesResData[which(randomPrimesResData$runType=="tailRemove"),c(4,6,7,9,10,11,12,16,17,19,24,25,31,32,39,40)],histogram = T, pch=19)
 
 
-resData <- rbind(primesResData,randomResData)
+resData <- rbind(primesResData,randomResData,randomPrimesResData)
 
 asinh_trans <- function(){
   trans_new(name = 'asinh', transform = function(x) asinh(x), 
@@ -579,7 +682,7 @@ ggplot(resData,
   scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","top 10", "top 1")) +
   geom_point() +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "black") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#E69F00")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
   theme_clean() +
   scale_y_continuous(trans = 'asinh') +
   labs(x = "Identifier set probability rank", y = "Sigma (scaled)", colour="Dataset") +
@@ -609,13 +712,13 @@ ggplot(filter(resData,runType=="headRemove"),
 # compare logNormMu
 # compare pLawAlpha
 ggplot(resData, 
-aes(x=axisTicks,y=scale(resData$pLawAlpha), color=runData)) +
+       aes(x=axisTicks,y=scale(resData$pLawAlpha), color=runData)) +
   #geom_line() +
   geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
   scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","top 10", "top 1")) +
   geom_point() +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "black") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#E69F00")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Alpha (scaled)", colour="Dataset") +
   annotate(geom="text", x=-5.5, y=max(scale(resData$pLawAlpha))*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -651,7 +754,7 @@ ggplot(resData,
   scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","top 10", "top 1")) +
   geom_point() +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "black") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#E69F00")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Condition number", colour="Dataset") +
   annotate(geom="text", x=-5.5, y=max(resData$conditionNumber)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -677,6 +780,14 @@ ggplot(filter(resData,runType=="headRemove"),
   scale_colour_colorblind() +
   NULL
 
+plot(unlist(primesEvalVar),primesResData$lapSpec, pch=20)
+chart.Correlation(cbind(unlist(primesEvalVar),primesResData$lapSpec))
+
+plot(unlist(randEvalVar),randomResData$lapSpec, pch=20)
+chart.Correlation(cbind(unlist(randEvalVar),randomResData$lapSpec))
+
+plot(unlist(primesRandEvalVar),randomPrimesResData$lapSpec, pch=20)
+chart.Correlation(cbind(unlist(primesRandEvalVar),randomPrimesResData$lapSpec))
 
 
 # compare lapSpec (most promising because most variance)
@@ -687,7 +798,7 @@ ggplot(resData,
   scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "black") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#E69F00")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Lapyunov spectrum", colour="Dataset") +
   annotate(geom="text", x=-5.5, y=max(resData$lapSpec)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -714,6 +825,36 @@ ggplot(filter(resData,runType=="headRemove"),
   NULL
 
 # compare recPercSpec + Div
+ggplot(resData, 
+       aes(x=axisTicks,y=scale(resData$recPercSpec), color=runData)) +
+  #geom_line() +
+  geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
+  scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
+  geom_point() +
+  geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "black") +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
+  theme_clean() +
+  labs(x = "Identifier set probability rank", y = "Recurrence percentage (scaled)", colour="Dataset") +
+  annotate(geom="text", x=-5.5, y=min(scale(resData$recPercSpec))*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
+  annotate(geom="text", x=6, y=min(scale(resData$recPercSpec))*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
+  scale_colour_colorblind() +
+  NULL
+
+ggplot(resData, 
+       aes(x=axisTicks,y=scale(resData$recPercDiv), color=runData)) +
+  #geom_line() +
+  geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
+  scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
+  geom_point() +
+  geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "black") +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
+  theme_clean() +
+  labs(x = "Identifier set probability rank", y = "Recurrence percentage (scaled)", colour="Dataset") +
+  annotate(geom="text", x=-5.5, y=min(scale(resData$recPercDiv))*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
+  annotate(geom="text", x=6, y=min(scale(resData$recPercDiv))*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
+  scale_colour_colorblind() +
+  NULL
+
 ggplot(resData, 
        aes(x=runId,y=scale(resData$recPercSpec), color=runIdentifier)) +
   geom_line() +

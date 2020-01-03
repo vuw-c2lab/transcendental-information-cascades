@@ -13,13 +13,13 @@ setwd("/home/STAFF/luczakma/researchdata2/fair/transcendental-information-cascad
 combined_data <- rbind(wien_primes[,c(1,4,5)],wien_primes_b4[,c(1,4,5)],wien_primes_b8[,c(1,4,5)],wien_primes_b16[,c(1,4,5)],wien_primes_b32[,c(1,4,5)],wien_primes_b36[,c(1,4,5)])
 ggplot(data=combined_data,
        aes(x=index, y=ShannonWiener, colour=run)) +
-  geom_line() + theme_apa() + scale_x_continuous(trans='log10')
+  geom_line() + theme_clean() + scale_x_continuous(trans='log10') + scale_colour_colorblind()
 
 combined_data <- rbind(wien_primes[,c(2,4,5)],wien_primes_b4[,c(2,4,5)],wien_primes_b8[,c(2,4,5)],wien_primes_b16[,c(2,4,5)],wien_primes_b32[,c(2,4,5)],wien_primes_b36[,c(2,4,5)])
 
 ggplot(data=combined_data,
        aes(x=index, y=Pielou, colour=run)) +
-  geom_line() + theme_apa() + scale_x_continuous(trans='log10')
+  geom_line() + theme_clean() + scale_x_continuous(trans='log10') + scale_colour_colorblind()
 
 combined_data <- rbind(wien_primes[,c(6,4,5)],wien_primes_b4[,c(6,4,5)],wien_primes_b8[,c(6,4,5)],wien_primes_b16[,c(6,4,5)],wien_primes_b32[,c(6,4,5)],wien_primes_b36[,c(6,4,5)])
 
@@ -38,13 +38,13 @@ combined_data <- rbind(wien_primes_random[,c(1,4,5)],wien_prandom_numbers[,c(1,4
 
 ggplot(data=combined_data,
        aes(x=index, y=ShannonWiener, colour=run)) +
-  geom_line() + theme_apa() + scale_x_continuous(trans='log10')
+  geom_line() + theme_clean() + scale_x_continuous(trans='log10') + scale_colour_colorblind()
 
 combined_data <- rbind(wien_primes_random[,c(2,4,5)],wien_prandom_numbers[,c(2,4,5)])
 
 ggplot(data=combined_data,
        aes(x=index, y=Pielou, colour=run)) +
-  geom_line() + theme_apa() + scale_x_continuous(trans='log10')
+  geom_line() + theme_clean() + scale_x_continuous(trans='log10') + scale_colour_colorblind()
 
 combined_data <- rbind(wien_primes_random[,c(6,4,5)],wien_prandom_numbers[,c(6,4,5)])
 
@@ -69,7 +69,7 @@ primes50k <- read_delim("data/primes50k.txt",
                         ";", escape_double = FALSE, col_names = FALSE, 
                         trim_ws = TRUE)
 np <- read_csv("~/OneDrive - Victoria University of Wellington - STAFF/prime_counts.txt")
-np<-as.vector(np$np)
+#np<-as.vector(np$np)
 
 nmax<-max(primes50k$X2)
 primelist <- primes50k$X2
@@ -113,7 +113,7 @@ plot_data$idx <- c(1:nrow(plot_data))
 
 ggplot(data=plot_data,
        aes(x=idx, y=p_count)) +
-  geom_line() + theme_apa() + scale_x_continuous(trans='log10')
+  geom_line() + theme_clean() + scale_x_continuous(trans='log10') + scale_colour_colorblind()
 
 plot_data <- as.data.frame(p_count2)
 plot_data$idx <- c(1:nrow(plot_data))
@@ -121,14 +121,14 @@ plot_data$idx <- c(1:nrow(plot_data))
 
 ggplot(data=plot_data,
        aes(x=idx, y=p_count2)) +
-  geom_line() + theme_apa() + scale_x_continuous(trans='log10')
+  geom_line() + theme_clean() + scale_x_continuous(trans='log10') + scale_colour_colorblind()
 
 prime_approx <- data.frame(pc1=p_count,pc2=c(Inf,p_count2))
 prime_approx.m <- reshape2::melt(prime_approx)
 ggplot(data=prime_approx.m,
        aes(x=c(1:nrow(prime_approx),1:nrow(prime_approx)), y=value, group=variable)) +
   geom_line(linetype=c(rep("dashed",nrow(prime_approx)),rep("dotted",nrow(prime_approx)))) + 
-  theme_apa() + scale_x_continuous(trans='log10') + 
+  theme_clean() + scale_x_continuous(trans='log10') + scale_colour_colorblind() +
   #geom_text(x=10, y=1.5, label=paste0(expression(pi(x)))) + geom_text(x=10, y=0.5, label=paste0(expression(pi(x))))
   NULL
 
@@ -209,7 +209,19 @@ ggplot(data=prime_approx.m,
                        rep("1F",nrow(prime_approx)),
                        rep("12345678",nrow(prime_approx))
   )) + 
-  theme_apa() + scale_x_continuous(trans='log10')
+  theme_clean() + scale_x_continuous(trans='log10') + scale_colour_colorblind()
+ggplot(data=prime_approx.m,
+       aes(x=c(1:nrow(prime_approx),
+               1:nrow(prime_approx),
+               1:nrow(prime_approx),
+               1:nrow(prime_approx),
+               1:nrow(prime_approx),
+               1:nrow(prime_approx),
+               1:nrow(prime_approx),
+               1:nrow(prime_approx)
+       ), y=value, colour=variable)) +
+  geom_line() + 
+  theme_clean() + scale_x_continuous(trans='log10') + scale_colour_colorblind()
 
 prime_approx <- data.frame(pc1=p_count,pc2=c(Inf,p_count2),eve=plot_data$ShWiener,eve4=plot_data$ShWiener4,eve8=plot_data$ShWiener8,eve16=plot_data$ShWiener16,eve32=plot_data$ShWiener32,eve36=plot_data$ShWiener36)
 prime_approx.m <- reshape2::melt(prime_approx)
@@ -232,7 +244,20 @@ ggplot(data=prime_approx.m,
                        rep("1F",nrow(prime_approx)),
                        rep("12345678",nrow(prime_approx))
   )) + 
-  theme_apa() + scale_x_continuous(trans='log10')
+  theme_clean() + scale_x_continuous(trans='log10') + scale_colour_colorblind()
+
+ggplot(data=prime_approx.m,
+       aes(x=c(1:nrow(prime_approx),
+               1:nrow(prime_approx),
+               1:nrow(prime_approx),
+               1:nrow(prime_approx),
+               1:nrow(prime_approx),
+               1:nrow(prime_approx),
+               1:nrow(prime_approx),
+               1:nrow(prime_approx)
+       ), y=value, colour=variable)) +
+  geom_line() + 
+  theme_clean() + scale_x_continuous(trans='log10') + scale_colour_colorblind()
 #geom_text(x=10, y=1.5, label=paste0(expression(pi(x)))) + geom_text(x=10, y=0.5, label=paste0(expression(pi(x))))
 
 
@@ -580,12 +605,35 @@ p <- Dist(tokenProbsPrimes$freq)
 q <- Dist(tokenProbsRandoms$freq)
 # for probability
 shannon_relative_entropy(p, q, b = 2)
+
 # for series
+xs <- coord_primes$diversity
+ys <- coord_prandom_numbers$diversity
 re <- relative_entropy(xs, ys, local = T)
-t(re)
+mutual_info(matrix(c(xs,ys),ncol = 2))
+#t(re)
+plot(re,type='l')
 
 # Block Entropy
-# 
-series <- coord_primes$diversity
-N <- c(1:5)
+# build symbol sequence 
+
+sets <- list()
+
+symbolSeq <- apply(nodes,1,function(x){
+  if(length(sets)==0){
+    sets[[as.character(x[2])]] <<- 1
+    which(names(sets) == x[2])
+  } else if(is.null(sets[[x[2]]])){
+    sets[[as.character(x[2])]] <<- 1
+    which(names(sets) == x[2])
+  }else{
+    which(names(sets) == x[2])
+  }
+})
+write_csv(as.data.frame(unlist(symbolSeq)),"~/Downloads/testseq-primes-random.csv")
+series <- symbolSeq
+#N <- c(1:5)
 block_entropy(series, k = 2)
+
+
+
