@@ -138,3 +138,10 @@ foo<-sapply(primes50k$X2,function(x){
                           collapse=",")),"~/OneDrive - Victoria University of Wellington - STAFF/primes-base36-dataset.txt",sep=';',row.names = F,col.names = F,append = T,quote = F)
   seq <<- seq + 1
 })
+
+
+X50kprimes <- read_delim("~/Downloads/50kprimes.txt", 
+                         ";", escape_double = FALSE, col_names = FALSE, 
+                         trim_ws = TRUE)
+X50kprimes <- X50kprimes[sample(1:50000, 50000, replace=FALSE),]
+write.table(X50kprimes,"~/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/input/2019-11-15-letter-to-n-study/data/primes50k-random-order.txt",sep=';',row.names = F,col.names = F,append = T,quote = F)

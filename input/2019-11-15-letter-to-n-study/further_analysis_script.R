@@ -514,23 +514,6 @@ ggplot(prime_approx, aes(x, eve) ) +
   stat_smooth(method = lm, formula = y ~ splines::bs(x, df = 3))
 
 
-#GAM
-library(mgcv)
-# Build the model
-model <- gam(eve ~ s(x), data = prime_approx)
-# Make predictions
-predictions <- model %>% predict(prime_approx)
-# Model performance
-data.frame(
-  RMSE = RMSE(predictions, prime_approx$eve),
-  R2 = R2(predictions, prime_approx$eve)
-)
-
-ggplot(prime_approx, aes(x, eve) ) +
-  geom_point() +
-  stat_smooth(method = gam, formula = y ~ s(x))
-
-
 #arima
 library(forecast)
 ar1 <- Arima(prime_approx$eve, order = c(1,0,0))
@@ -636,4 +619,213 @@ series <- symbolSeq
 block_entropy(series, k = 2)
 
 
+# differences??? ------
 
+summary(primesResData)
+summary(randomResData)
+
+x <- primesResData$hurstCoeffSpec
+y <- randomResData$hurstCoeffSpec
+cor(x,y)
+cov(x,y)
+mean(x)
+mean(y)
+t.test(x, y, alternative = "two.sided", var.equal = FALSE)
+plot(unlist(primesEvalVar),primesResData$lapSpec, pch=20)
+chart.Correlation(cbind(unlist(primesEvalVar),primesResData$lapSpec))
+
+plot(unlist(randEvalVar),randomResData$lapSpec, pch=20)
+chart.Correlation(cbind(unlist(randEvalVar),randomResData$lapSpec))
+
+plot(unlist(primesRandEvalVar),randomPrimesResData$lapSpec, pch=20)
+chart.Correlation(cbind(unlist(primesRandEvalVar),randomPrimesResData$lapSpec))
+
+plot(unlist(primesEvalVar),primesResData$hurstCoeffSpec, pch=20)
+plot(unlist(randEvalVar),randomResData$hurstCoeffSpec, pch=20)
+plot(unlist(primesRandEvalVar),randomPrimesResData$hurstCoeffSpec, pch=20)
+
+plot(density(primesResData$largestEV))
+plot(density(randomResData$largestEV))
+plot(density(randomPrimesResData$largestEV))
+
+plot(ecdf(primesResData$largestEV))
+plot(ecdf(randomResData$largestEV))
+plot(ecdf(randomPrimesResData$largestEV))
+
+plot(density(cumsum(primesResData$largestEV-mean(primesResData$largestEV))),type='l')
+
+ks.test(primesResData$hurstCoeffSpec,randomResData$hurstCoeffSpec)
+plot(density(cumsum(randomResData$largestEV-mean(randomResData$largestEV))),type='l')
+plot(density(cumsum(randomPrimesResData$largestEV-mean(randomPrimesResData$largestEV))),type='l')
+
+
+plot(primesResData$setProb,primesResData$lapSpec,type='l')
+plot(randomResData$setProb,randomResData$lapSpec,type='l')
+plot(randomPrimesResData$setProb,randomPrimesResData$lapSpec,type='l')
+
+
+#log transform
+# Build the model
+model <- lm(lr ~ log(setProb), data = resData)
+# Make predictions
+predictions <- model %>% predict(resData)
+# Model performance
+data.frame(
+  RMSE = RMSE(predictions, resData$lr),
+  R2 = R2(predictions, resData$lr)
+)
+
+ggplot(resData, aes(setProb, lr) ) +
+  geom_point() +
+  stat_smooth(method = lm, formula = y ~ log(x))
+
+#splines
+# Build the model
+knots <- quantile(primesResData$setProb, p = c(0.25, 0.5, 0.75))
+model <- lm (lr ~ bs(setProb, knots = knots), data = primesResData)
+# Make predictions
+predictions <- model %>% predict(primesResData)
+# Model performance
+data.frame(
+  RMSE = RMSE(predictions, primesResData$lr),
+  R2 = R2(predictions, primesResData$lr)
+)
+ggplot(primesResData, aes(setProb, lr) ) +
+  geom_point() +
+  stat_smooth(method = lm, formula = y ~ splines::bs(x, df = 3))
+
+
+
+# #powerlaw
+library(poweRlaw)
+
+m_bl = poweRlaw::conpl$new(primesResData$lr)
+est = estimate_xmin(m_bl)
+m_bl$setXmin(est)
+m_bl$setPars(estimate_pars(m_bl))
+# print(paste0(fils[i]," alpha: ",m_bl$pars," xMin: ",m_bl$xmin))
+# #lognormal
+m_ln = conlnorm$new(primesResData$lr)
+est = estimate_xmin(m_ln)
+m_ln$setXmin(est)
+m_ln$setPars(estimate_pars(m_ln))
+# # #poissoin
+m_exp = conexp$new(primesResData$lr)
+est = estimate_xmin(m_exp)
+m_exp$setXmin(est)
+m_exp$setPars(estimate_pars(m_exp))
+# # 
+# # #jpeg(paste0("TLit/www/output/",sliceSize,"/",theSource,"_links_delta_distri_plaw.jpg"))
+plot(m_bl, ylab="CDF",pch=20)
+text(0.00005,0.01,bquote(x[min] ~ .(paste0("=")) ~ .(m_bl$xmin) ~ .(paste0(", ")) ~ alpha ~ .(paste0("=")) ~ .(m_bl$pars)))
+lines(m_bl, col="red")
+lines(m_ln, col="green")
+lines(m_exp, col="blue")
+
+
+ggplot(resData, 
+       aes(x=resData$setProb,y=resData$hurstCoeffSpec, color=runData)) + scale_x_continuous(trans='log10') +
+  #geom_line() +
+  #geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
+  #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
+  geom_point() + geom_smooth(span = 0.6) +
+  geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
+  theme_clean() +
+  labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
+  #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
+  #annotate(geom="text", x=6, y=min(resData$hurstCoeffDiv)*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
+  scale_colour_colorblind() +
+  NULL
+
+ggplot(resData, 
+       aes(x=resData$setProb,y=resData$lapSpec, color=runData)) + scale_x_continuous(trans='log10') +
+  #geom_line() +
+  #geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
+  #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
+  geom_point() + geom_smooth(span = 0.6) +
+  geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
+  theme_clean() +
+  labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
+  #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
+  #annotate(geom="text", x=6, y=min(resData$hurstCoeffDiv)*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
+  scale_colour_colorblind() +
+  NULL
+
+ggplot(resData, 
+       aes(x=resData$setProb,y=resData$recRatioSpec, color=runData)) + scale_x_continuous(trans='log10') +
+  #geom_line() +
+  #geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
+  #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
+  geom_point() + geom_smooth(span = 0.6) +
+  geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
+  theme_clean() +
+  labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
+  #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
+  #annotate(geom="text", x=6, y=min(resData$hurstCoeffDiv)*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
+  scale_colour_colorblind() +
+  NULL
+
+ggplot(resData, 
+       aes(x=resData$setProb,y=resData$largestEV, color=runData)) + scale_x_continuous(trans='log10') +
+  #geom_line() +
+  #geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
+  #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
+  geom_point() + stat_smooth(method = gam, formula = y ~ s(x)) +
+  geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
+  theme_clean() +
+  labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
+  #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
+  #annotate(geom="text", x=6, y=min(resData$hurstCoeffDiv)*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
+  scale_colour_colorblind() +
+  NULL
+
+
+# for LR against prob
+#GAM
+library(mgcv)
+# Build the model
+model <- gam(lr ~ s(setProb), data = primesResData)
+# Make predictions
+predictions <- model %>% predict(primesResData)
+# Model performance
+data.frame(
+  RMSE = RMSE(predictions, primesResData$lr),
+  R2 = R2(predictions, primesResData$lr)
+)
+
+ggplot(primesResData, aes(setProb, lr) ) +
+  geom_point() + scale_x_continuous(trans='log10') + scale_y_continuous(trans='log10') +
+  stat_smooth(method = gam, formula = y ~ s(x))
+
+plo <- ggplot(resData, 
+       aes(x=resData$setProb,y=resData$lr, color=runData)) + scale_x_continuous(trans='log10') +
+  #geom_line() +
+  #geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
+  #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
+  geom_point() + stat_smooth(method = gam, formula = y ~ s(x)) +
+  geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
+  theme_clean() +
+  labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
+  #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
+  #annotate(geom="text", x=6, y=min(resData$hurstCoeffDiv)*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
+  scale_colour_colorblind() +
+  NULL
+
+# get model params (confidence interval, standard error)
+ggplot_build(plo)$data[[2]]
+
+
+
+chart.Correlation(cbind(primesResData$recPercSpec,randomPrimesResData$recPercSpec,randomResData$recPercSpec))
+chart.Correlation(cbind(primesResData$recDetSpec,randomPrimesResData$recDetSpec,randomResData$recDetSpec))
+chart.Correlation(cbind(primesResData$recLmeanSpec,randomPrimesResData$recLmeanSpec,randomResData$recLmeanSpec))
+chart.Correlation(cbind(primesResData$recRatioSpec,randomPrimesResData$recRatioSpec,randomResData$recRatioSpec))
+chart.Correlation(cbind(primesResData$recVmeanSpec,randomPrimesResData$recVmeanSpec,randomResData$recVmeanSpec))
+chart.Correlation(cbind(primesResData$recTrendSpec,randomPrimesResData$recTrendSpec,randomResData$recTrendSpec))
+chart.Correlation(cbind(primesResData$recRateSpecMean,randomPrimesResData$recRateSpecMean,randomResData$recRateSpecMean))
+chart.Correlation(cbind(primesResData$recEntropySpec,randomPrimesResData$recEntropySpec,randomResData$recEntropySpec))

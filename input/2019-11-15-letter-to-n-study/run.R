@@ -540,6 +540,31 @@ tic <- createTIC(projectDir, outputDir, dataSource, tokeniser)
 source("../../src/postProcessTICNetwork/main.R")
 postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
 
+# PIPELINE RANDOM ORDER OF 50k PRIME --------------------------------------------------------------
+
+## create TIC
+# get project name from current directory and create output directory for project
+projectDir <- basename(getwd())
+dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
+
+# data source
+dataSource <- "primesrandomorder50k.txt"
+
+# select tokeniser
+tokeniser <- "discrete/tokenised"
+
+# create output directories for the different modules in this pipeline
+outputDir <- paste0(tools::file_path_sans_ext(dataSource),"-",gsub("/","-",tokeniser),"-",format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
+dir.create(file.path(paste0("../../output/",projectDir), outputDir), showWarnings = T)
+
+# run
+source("../../src/createTIC/main.R")
+tic <- createTIC(projectDir, outputDir, dataSource, tokeniser)
+
+# run TIC network post processing
+source("../../src/postProcessTICNetwork/main.R")
+postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
+
 
 # PIPELINE PRIME BASE 4 --------------------------------------------------------------
 
@@ -735,7 +760,7 @@ for(i in 1:20){
   dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
   
   # data source
-  dataSource <- paste0("primes50k_headRemove_",i,".txt")
+  dataSource <- paste0("primesrandomorder50k_headRemove_",i,".txt")
   
   # select tokeniser
   tokeniser <- "discrete/tokenised"
@@ -762,7 +787,7 @@ for(i in 1:20){
   dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
   
   # data source
-  dataSource <- paste0("random50k_tailRemove_",i,".txt")
+  dataSource <- paste0("primesrandomorder50k_tailRemove_",i,".txt")
   
   # select tokeniser
   tokeniser <- "discrete/tokenised"
