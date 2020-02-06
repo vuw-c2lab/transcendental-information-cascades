@@ -5,6 +5,23 @@ if (!require(igraph)) install.packages('igraph')
 if (!require(gtools)) install.packages('gtools')
 if (!require(tools)) install.packages('tools')
 if (!require(tuneR)) install.packages('tuneR')
+library(ggthemes)
+library(tseriesChaos)
+library(nonlinearTseries)
+library(ggpubr)
+library(latex2exp)
+library(ggrepel)
+library(scales)
+library(GGally)
+library(rinform)
+library(PerformanceAnalytics)
+library(fractal)
+
+asinh_trans <- function(){
+  trans_new(name = 'asinh', transform = function(x) asinh(x), 
+            inverse = function(x) sinh(x))
+}
+
 
 setwd("/home/STAFF/luczakma/researchdata2/fair/transcendental-information-cascades/input/2019-11-15-letter-to-n-study/")
 
@@ -95,6 +112,7 @@ primelist <- primes50k$X2
 
 eq = function(x,y){(y)  / (x/(log(x)))}
 p_count <- eq(x=c(1:max(primes50k$X2)),y=np)
+p_count <- unlist(p_count)
 plot(p_count,type='l',log='x')
 
 eq2 = function(x,y){
@@ -103,8 +121,9 @@ eq2 = function(x,y){
 
 p_count2 <- c()
 for(t in 2:max(primes50k$X2)){
-  p_count2 <- c(p_count2,eq2(x=t,y=np[t]))
+  p_count2 <- c(p_count2,eq2(x=t,y=np[t,1]))
 }
+p_count2 <- unlist(p_count2)
 plot(p_count2,type='l',log='x')
 
 plot_data <- as.data.frame(p_count)
@@ -153,6 +172,12 @@ plot_data$Pielou36 <- 1
 plot_data$ShWienerTailRem1 <- 0
 plot_data$PielouTailRem1 <- 1
 
+plot_data$ShWienerRandOrder <- 0
+plot_data$PielouRandOrder <- 1
+
+plot_data$ShWienerRandNums <- 0
+plot_data$PielouRandNums <- 1
+
 plot_data$np <- c(0,diff(np))
 plot_data$np_orig <- np
 
@@ -181,8 +206,11 @@ for (i in 1:nrow(plot_data)){
     plot_data$ShWiener36[i] <- wien_primes_b36$ShannonWiener[ShWienerIdx]
     plot_data$Pielou36[i] <- wien_primes_b36$Pielou[ShWienerIdx]
     
-    plot_data$ShWienerTailRem1[i] <- wien_primes_tailRem1$ShannonWiener[ShWienerIdx]
-    plot_data$PielouTailRem1[i] <- wien_primes_tailRem1$Pielou[ShWienerIdx]
+    plot_data$ShWienerRandOrder[i] <- wien_primes_random_order$ShannonWiener[ShWienerIdx]
+    plot_data$ShWienerRandOrder[i] <- wien_primes_random_order$Pielou[ShWienerIdx]
+    
+    plot_data$ShWienerRandNums[i] <- wien_prandom_numbers$ShannonWiener[ShWienerIdx]
+    plot_data$ShWienerRandNums[i] <- wien_prandom_numbers$Pielou[ShWienerIdx]
   } else {
     
   }
@@ -279,7 +307,8 @@ library(polynom)
 library(pracma)
 library(Matrix)
 library(RSpectra)
-options(scipen=1000)
+library(nonpar)
+options(scipen=100000)
 
 # how many eigenvalues?
 k <- 200
@@ -613,7 +642,7 @@ symbolSeq <- apply(nodes,1,function(x){
     which(names(sets) == x[2])
   }
 })
-write_csv(as.data.frame(unlist(symbolSeq)),"~/Downloads/testseq-primes-random.csv")
+write_csv(as.data.frame(unlist(symbolSeq)),"~/Downloads/testseq-primes-random-order.csv")
 series <- symbolSeq
 #N <- c(1:5)
 block_entropy(series, k = 2)
@@ -624,13 +653,32 @@ block_entropy(series, k = 2)
 summary(primesResData)
 summary(randomResData)
 
-x <- primesResData$hurstCoeffSpec
-y <- randomResData$hurstCoeffSpec
+x <- 1:nrow(plot_data)
+y <- plot_data$ShWiener
+
+d<-data.frame(x,y)
+logEstimate <- lm(y~log(x),data=d)
+plot(x,y,type='l')
+lines(x=names(fitted(logEstimate)),y=fitted(logEstimate))
+
+# Model performance
+data.frame(
+  RMSE = RMSE(fitted(logEstimate)[-c(1:2)], p_count2[-1]),
+  R2 = R2(fitted(logEstimate)[-1], p_count2[-1])
+)
+
+#d<-data.frame(t=x,y=y)
+#fit <- nls(y ~ SSasymp(t, yf, y0, log_alpha), data = d)
+
 cor(x,y)
 cov(x,y)
 mean(x)
 mean(y)
 t.test(x, y, alternative = "two.sided", var.equal = FALSE)
+
+
+
+
 plot(unlist(primesEvalVar),primesResData$lapSpec, pch=20)
 chart.Correlation(cbind(unlist(primesEvalVar),primesResData$lapSpec))
 
@@ -640,28 +688,50 @@ chart.Correlation(cbind(unlist(randEvalVar),randomResData$lapSpec))
 plot(unlist(primesRandEvalVar),randomPrimesResData$lapSpec, pch=20)
 chart.Correlation(cbind(unlist(primesRandEvalVar),randomPrimesResData$lapSpec))
 
+plot(unlist(primesRandOrderEvalVar),randomOrderPrimesResData$lapSpec, pch=20)
+chart.Correlation(cbind(unlist(primesRandEvalVar),randomPrimesResData$lapSpec))
+
 plot(unlist(primesEvalVar),primesResData$hurstCoeffSpec, pch=20)
 plot(unlist(randEvalVar),randomResData$hurstCoeffSpec, pch=20)
 plot(unlist(primesRandEvalVar),randomPrimesResData$hurstCoeffSpec, pch=20)
+plot(unlist(primesRandOrderEvalVar),randomOrderPrimesResData$hurstCoeffSpec, pch=20)
 
-plot(density(primesResData$largestEV))
+plot(density(diff(primesResData$largestEV)))
 plot(density(randomResData$largestEV))
 plot(density(randomPrimesResData$largestEV))
+plot(density(diff(randomOrderPrimesResData$largestEV)))
 
 plot(ecdf(primesResData$largestEV))
 plot(ecdf(randomResData$largestEV))
 plot(ecdf(randomPrimesResData$largestEV))
+plot(ecdf(randomOrderPrimesResData$largestEV))
 
 plot(density(cumsum(primesResData$largestEV-mean(primesResData$largestEV))),type='l')
 
-ks.test(primesResData$hurstCoeffSpec,randomResData$hurstCoeffSpec)
+plot(density(primesResData$conditionNumber))
+plot(density(randomResData$conditionNumber))
+plot(density(randomPrimesResData$conditionNumber))
+plot(density(randomOrderPrimesResData$conditionNumber))
+
+plot(ecdf(primesResData$conditionNumber))
+plot(ecdf(randomResData$conditionNumber))
+plot(ecdf(randomPrimesResData$conditionNumber))
+plot(ecdf(randomOrderPrimesResData$conditionNumber))
+
+#ks test  no good due to small sample
+ks.test(diff(primesResData$largestEV),diff(randomOrderPrimesResData$largestEV))
+
+nonpar::cucconi.test(diff(primesResData$largestEV),diff(randomOrderPrimesResData$largestEV))
+
+
 plot(density(cumsum(randomResData$largestEV-mean(randomResData$largestEV))),type='l')
 plot(density(cumsum(randomPrimesResData$largestEV-mean(randomPrimesResData$largestEV))),type='l')
 
 
-plot(primesResData$setProb,primesResData$lapSpec,type='l')
-plot(randomResData$setProb,randomResData$lapSpec,type='l')
-plot(randomPrimesResData$setProb,randomPrimesResData$lapSpec,type='l')
+plot(primesResData$setProb,primesResData$lapSpec)
+plot(randomResData$setProb,randomResData$lapSpec)
+plot(randomPrimesResData$setProb,randomPrimesResData$lapSpec)
+plot(randomOrderPrimesResData$setProb,randomOrderPrimesResData$lapSpec)
 
 
 #log transform
@@ -699,18 +769,18 @@ ggplot(primesResData, aes(setProb, lr) ) +
 # #powerlaw
 library(poweRlaw)
 
-m_bl = poweRlaw::conpl$new(primesResData$lr)
+m_bl = poweRlaw::conpl$new(randomPrimesResData$lr)
 est = estimate_xmin(m_bl)
 m_bl$setXmin(est)
 m_bl$setPars(estimate_pars(m_bl))
 # print(paste0(fils[i]," alpha: ",m_bl$pars," xMin: ",m_bl$xmin))
 # #lognormal
-m_ln = conlnorm$new(primesResData$lr)
+m_ln = conlnorm$new(randomPrimesResData$lr)
 est = estimate_xmin(m_ln)
 m_ln$setXmin(est)
 m_ln$setPars(estimate_pars(m_ln))
 # # #poissoin
-m_exp = conexp$new(primesResData$lr)
+m_exp = conexp$new(randomPrimesResData$lr)
 est = estimate_xmin(m_exp)
 m_exp$setXmin(est)
 m_exp$setPars(estimate_pars(m_exp))
@@ -730,9 +800,9 @@ ggplot(resData,
   #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + geom_smooth(span = 0.6) +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9", "primesrandomorderB50k" = "#009E73")) +
   theme_clean() +
-  labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
+  labs(x = "Identifier set probability rank", y = "Hurst coefficient", colour="Dataset") +
   #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
   #annotate(geom="text", x=6, y=min(resData$hurstCoeffDiv)*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
   scale_colour_colorblind() +
@@ -745,7 +815,7 @@ ggplot(resData,
   #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + geom_smooth(span = 0.6) +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9", "primesrandomorderB50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
   #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -754,70 +824,21 @@ ggplot(resData,
   NULL
 
 ggplot(resData, 
-       aes(x=resData$setProb,y=resData$recRatioSpec, color=runData)) + scale_x_continuous(trans='log10') +
+       aes(x=resData$setProb,y=resData$recPercSpec, color=runData)) + scale_x_continuous(trans='log10') +
   #geom_line() +
   #geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
   #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + geom_smooth(span = 0.6) +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9", "primesrandomorderB50k" = "#009E73")) +
   theme_clean() +
-  labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
-  #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
-  #annotate(geom="text", x=6, y=min(resData$hurstCoeffDiv)*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
-  scale_colour_colorblind() +
-  NULL
-
-ggplot(resData, 
-       aes(x=resData$setProb,y=resData$largestEV, color=runData)) + scale_x_continuous(trans='log10') +
-  #geom_line() +
-  #geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
-  #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
-  geom_point() + stat_smooth(method = gam, formula = y ~ s(x)) +
-  geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
-  theme_clean() +
-  labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
+  labs(x = "Identifier set probability rank", y = "Recurrence ratio", colour="Dataset") +
   #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
   #annotate(geom="text", x=6, y=min(resData$hurstCoeffDiv)*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
   scale_colour_colorblind() +
   NULL
 
 
-# for LR against prob
-#GAM
-library(mgcv)
-# Build the model
-model <- gam(lr ~ s(setProb), data = primesResData)
-# Make predictions
-predictions <- model %>% predict(primesResData)
-# Model performance
-data.frame(
-  RMSE = RMSE(predictions, primesResData$lr),
-  R2 = R2(predictions, primesResData$lr)
-)
-
-ggplot(primesResData, aes(setProb, lr) ) +
-  geom_point() + scale_x_continuous(trans='log10') + scale_y_continuous(trans='log10') +
-  stat_smooth(method = gam, formula = y ~ s(x))
-
-plo <- ggplot(resData, 
-       aes(x=resData$setProb,y=resData$lr, color=runData)) + scale_x_continuous(trans='log10') +
-  #geom_line() +
-  #geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
-  #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
-  geom_point() + stat_smooth(method = gam, formula = y ~ s(x)) +
-  geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#56B4E9", "primesrandom50k" = "#E69F00")) +
-  theme_clean() +
-  labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
-  #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
-  #annotate(geom="text", x=6, y=min(resData$hurstCoeffDiv)*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
-  scale_colour_colorblind() +
-  NULL
-
-# get model params (confidence interval, standard error)
-ggplot_build(plo)$data[[2]]
 
 
 
@@ -829,3 +850,173 @@ chart.Correlation(cbind(primesResData$recVmeanSpec,randomPrimesResData$recVmeanS
 chart.Correlation(cbind(primesResData$recTrendSpec,randomPrimesResData$recTrendSpec,randomResData$recTrendSpec))
 chart.Correlation(cbind(primesResData$recRateSpecMean,randomPrimesResData$recRateSpecMean,randomResData$recRateSpecMean))
 chart.Correlation(cbind(primesResData$recEntropySpec,randomPrimesResData$recEntropySpec,randomResData$recEntropySpec))
+
+
+
+
+foo <- origResData$hurstCoeffSpec[1]-resData$hurstCoeffSpec[which(resData$runData=="random50k")]
+diff(foo)
+plot(foo,type='l')
+
+
+resData2 <- rbind(resData,origResData)
+
+ggplot(resData2, 
+       aes(x=resData2$axisTicks,y=resData2$lapDiv, color=runData)) +# scale_x_continuous(trans='log10') +
+  #geom_line() +
+  #geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
+  #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
+  geom_point() + geom_smooth(span = 0.6) +
+  geom_label_repel(aes(label = resData2$axisTicks, fill=resData2$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9", "primesrandomorderB50k" = "#009E73")) +
+  theme_clean() +
+  labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
+  #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
+  #annotate(geom="text", x=6, y=min(resData$hurstCoeffDiv)*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
+  scale_colour_colorblind() +
+  NULL
+
+
+toDiff <- list(colnames(origResData)[c(4:63)])
+
+resDiffData <- resData[0,]
+
+for(orig in 1:nrow(origResData)){
+  runData <- origResData$runData[orig]
+  
+  subRes <- resData[which(resData$runData==runData),]
+  
+  for(differ in toDiff){
+    subRes[,differ] <- subRes[,differ] - c(origResData[orig,differ])
+  }
+  
+  resDiffData <- rbind(resDiffData,subRes)
+}
+
+primeRows <- which(resDiffData$runData=="primes50k")
+primeRandomOrderRows <- which(resDiffData$runData=="primesrandomorder50k")
+primeRandomOrderBRows <- which(resDiffData$runData=="primesrandomorderB50k")
+randomNumbersRows <- which(resDiffData$runData=="random50k")
+
+
+resDiffData$lr2[primeRandomOrderRows]
+
+
+
+resDf <- data.frame(it1 = scale(resDiffData$largestEV),
+                    it2 = scale(resDiffData$hurstCoeffSpec))
+meansDiamondPlot(resDf)
+
+scaledResData <- resDiffData
+
+for(stp in c(4:63,68)){
+  scaledResData[,stp] <- c(scale(scaledResData[,stp]))
+}
+
+meansComparisonDiamondPlot(scaledResData,
+                           items=unlist(toDiff),
+                           compareBy = 'runData',
+                           conf.level = .99)
+
+
+
+interp_data <- interp(x=resDiffData$axisTicks[primeRows],
+                      y=resDiffData$recEntropyDiv[primeRows],
+                      z=resDiffData$hurstCoeffDiv[primeRows])
+
+p <- plot_ly(x=interp_data$x, y=interp_data$y, z = interp_data$z) %>% add_surface()
+p
+
+lines3D(resData$axisTicks[primeRows],
+        resData$mean_div[primeRows],
+        resData$hurstCoeffDiv[primeRows])
+
+plot_ly(x=resData$recEntropyDiv,
+        y=resData$max_div,
+        z = resData$hurstCoeffDiv, 
+        type = "scatter3d",mode="points",opacity=0.5, color = resData$runData) #%>%
+  # layout(
+  #   title = "Discriminant Analysis",
+  #   scene = list(
+  #     xaxis = list(title = "Token Set Recurrence Entropy"),
+  #     yaxis = list(title = "Max Token Set Diversity"),
+  #     zaxis = list(title = "Hurst Coefficient of Token Set Diversity")
+  #   ))
+
+
+
+interp_data <- interp(x=coord_primes_random$t,y=coord_primes_random$specificity,z=coord_primes_random$diversity)
+
+p <- plot_ly(x=interp_data$x, y=interp_data$y, z = interp_data$z) %>% add_surface()
+p
+
+
+plot(x=scale(resDiffData$recRatioDiv[primeRows]),y=scale(resDiffData$recTrendSpec[primeRows]))
+cor(scale(resDiffData$recRatioDiv[primeRows]),scale(resDiffData$recTrendSpec[primeRows]))
+X <- matrix(c(scale(resDiffData$recRatioDiv[primeRows]),scale(resDiffData$recTrendSpec[primeRows])),ncol = 2)
+chull(X)
+plot(X, cex = 0.5)
+hpts <- chull(X)
+hpts <- c(hpts, hpts[1])
+lines(X[hpts, ])
+
+library(DescTools)
+
+ggplot(filter(resDiffData,runData=="primes50k"), aes(setProb,lr2) ) +
+  geom_point() +
+  stat_smooth(method = lm, formula = y ~ splines::bs(x, df = 3))
+AUC(x=scale(resDiffData$setProb[primeRows]),y=scale(resDiffData$lr2[primeRows]), method="spline")
+
+
+
+plo <- ggplot(resData, 
+              aes(x=resData$setProb,y=resData$lr2, color=runData)) + scale_x_continuous(trans='log10') +
+  #geom_line() +
+  #geom_vline(xintercept = 0, colour="grey", linetype="dashed") +
+  #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
+  geom_point() + 
+  geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9", "primesrandomorderB50k" = "#009E73")) +
+  theme_clean() +
+  labs(x = "Identifier set probability rank", y = "LR", colour="Dataset") +
+  #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
+  #annotate(geom="text", x=6, y=min(resData$hurstCoeffDiv)*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +
+  scale_colour_colorblind() + stat_smooth(method = gam, formula = y ~ s(x)) +
+  NULL
+plo
+
+eGap <- read_csv("~/OneDrive - Victoria University of Wellington - STAFF/RScripts/2019-12-letter-to-N-final-analysis/primes50k-discrete-tokenised-2019-11-21-17-54-58-eigengaps.csv")
+eGap2 <- read_csv("~/OneDrive - Victoria University of Wellington - STAFF/RScripts/2019-12-letter-to-N-final-analysis/primes50k_tailRemove_1-discrete-tokenised-2019-12-13-09-03-55-eigengaps.csv")
+
+meansComparisonDiamondPlot(scaledResData,
+                           items=unlist(toDiff),
+                           compareBy = 'runData',
+                           conf.level = .99)
+library(BEST)
+priors <- list(muM = 6, muSD = 2)
+BESTout <- BESTmcmc(primesResData$lapSpec, randomResData$lapSpec, priors=priors, parallel=FALSE)
+plotAll(BESTout)
+
+sm.density.compare(resData$recVmeanDiv, as.factor(resData$runData), xlab="feature x")
+colfill<-c(2:(2+length(levels(as.factor(resData$runData))))) 
+legend(locator(1), levels(as.factor(resData$runData)), fill=colfill) 
+
+library(magrittr)
+library(glmnet)
+library(pROC)
+
+x_cont <- as.matrix(df[,1:6])
+y_cont <- as.matrix(resData$runData)
+
+ridge1 <- glmnet(x = x_cont, y = y_cont, alpha = 0, family = "multinomial")
+plot(ridge1, xvar = "lambda")
+
+ridge1_cv <- cv.glmnet(x = x_cont, y = y_cont,
+                       ## type.measure: loss to use for cross-validation.
+                       type.measure = "mse",
+                       ## K = 10 is the default.
+                       nfold = 10,
+                       ## ‘alpha = 1’ is the lasso penalty, and ‘alpha = 0’ the ridge penalty.
+                       alpha = 0, family = "multinomial")
+## Penalty vs CV MSE plot
+plot(ridge1_cv)

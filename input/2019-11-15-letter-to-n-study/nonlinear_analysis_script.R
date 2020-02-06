@@ -5,6 +5,11 @@ if (!require(gtools)) install.packages('gtools')
 if (!require(tools)) install.packages('tools')
 if (!require(tuneR)) install.packages('tuneR')
 
+library(nonlinearTseries)
+library(plot3D)
+library(plotly)
+library(crqa)
+
 setwd("~/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/input/2019-11-15-letter-to-n-study/")
 
 
@@ -28,6 +33,7 @@ coord_primes_b36 <- read.csv("../../output/2019-11-15-letter-to-n-study/primes-b
 
 
 coord_primes_random <- read.csv("../../output/2019-11-15-letter-to-n-study/primes50k-random-discrete-tokenised-2019-11-21-20-42-39/createTIC/TICCoordinates.csv",stringsAsFactors = F)
+coord_primes_random_order <- read.csv("../../output/2019-11-15-letter-to-n-study/primesrandomorder50k-discrete-tokenised-2020-01-11-13-49-00/createTIC/TICCoordinates.csv",stringsAsFactors = F)
 coord_prandom_numbers <- read.csv("../../output/2019-11-15-letter-to-n-study/randomnumbers50k-discrete-tokenised-2019-11-21-21-16-27/createTIC/TICCoordinates.csv",stringsAsFactors = F)
 
 
@@ -70,14 +76,19 @@ wien_primes_b36$csumS <- c(0,cumsum(diff(wien_primes_b36$ShannonWiener)))
 
 wien_primes_random <- read.csv("../../output/2019-11-15-letter-to-n-study/primes50k-random-discrete-tokenised-2019-11-21-20-42-39/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
 wien_prandom_numbers <- read.csv("../../output/2019-11-15-letter-to-n-study/randomnumbers50k-discrete-tokenised-2019-11-21-21-16-27/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
+wien_primes_random_order <- read.csv("../../output/2019-11-15-letter-to-n-study/primesrandomorder50k-discrete-tokenised-2020-01-11-13-49-00/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
 
 wien_primes_random$run <- "primes_random"
+wien_primes_random_order$run <- "primes_random_order"
 wien_prandom_numbers$run <- "random_numbers"
 wien_primes_random$index <- c(1:50000)
+wien_primes_random_order$index <- c(1:50000)
 wien_prandom_numbers$index <- c(1:50000)
 wien_primes_random$csumP <- c(0,cumsum(diff(wien_primes_random$Pielou)))
+wien_primes_random_order$csumP <- c(0,cumsum(diff(wien_primes_random_order$Pielou)))
 wien_prandom_numbers$csumP <- c(0,cumsum(diff(wien_prandom_numbers$Pielou)))
 wien_primes_random$csumS <- c(0,cumsum(diff(wien_primes_random$ShannonWiener)))
+wien_primes_random_order$csumS <- c(0,cumsum(diff(wien_primes_random_order$ShannonWiener)))
 wien_prandom_numbers$csumS <- c(0,cumsum(diff(wien_prandom_numbers$ShannonWiener)))
 
 
@@ -85,19 +96,16 @@ wien_primes_tailRem1 <- read.csv("../../output/2019-11-15-letter-to-n-study/prim
 wien_primes_tailRem1$run <- "primes"
 wien_primes_tailRem1$index <- c(1:50000)
 
+# test ----
 ###  NONLINEAR
 
 library(tseriesChaos)
 
-myts <- ts(prime_approx$eve)
-stplot(myts, m=3, d=8, idt=1, mdt=250)
-
-library(nonlinearTseries)
-library(plot3D)
-library(plotly)
+myts <- ts(plot_data$PielouRandOrder)
+stplot(myts, m=3, d=8, idt=1, mdt=50000)
 
 #eDim <- nonlinearTseries::embeddingDims(wien_primes$ShannonWiener)
-takens <- nonlinearTseries::buildTakens(diff(head(coord_primes_tailRem1$specificity,50000)), embedding.dim = 3, time.lag = 1)
+takens <- nonlinearTseries::buildTakens(coord_primes_random_order$specificity, embedding.dim = 3, time.lag = 1)
 plot(takens, pch='.')
 lines3D(takens[,1],takens[,2],takens[,3])
 takens.df <- as.data.frame(takens)
@@ -118,19 +126,26 @@ plot(ts(sinai.map$x))
 plot(r.ts,type = 'l')
 
 
-takens <- nonlinearTseries::buildTakens(coord_primes_random$specificity, embedding.dim = 3, time.lag = 1)
+tSeries <- cumsum(coord_primes_random_order$specificity-mean(coord_primes_random_order$specificity))
+#tSeries <- coord_primes$specificity
+#tSeries <- log(coord_primes$specificity)
+
+takens <- nonlinearTseries::buildTakens(tSeries, embedding.dim = 3, time.lag = 1)
 plot(takens, pch='.')
 lines3D(takens[,1],takens[,2],takens[,3])
 
 #rqa.analysis=rqa(takens=takens,radius = 3,time.lag = 2)
-rqa.analysis=rqa(time.series = coord_primes$specificity,radius = 2,time.lag = 1)
+rqa.analysis=rqa(time.series = tSeries,radius = 50,time.lag = 1)
+tiff("~/Downloads/Plot.tif", res = 300, width = 4, height = 4, units = 'in',)
 plot(rqa.analysis)
-maxLyapunov(diff(head(coord_primes$specificity,50000)),radius = 3)
+dev.off()
+ml <- maxLyapunov(tSeries,radius = 50,min.embedding.dim = 3,max.embedding.dim = 7, max.time.steps = 5000)
+ml.est <- estimate(ml,do.plot=F,fit.lty=1,fit.lwd=5)
 #recurr(diff(coord_primes$diversity), m=3, d=2, start.time=0, end.time=2000)
 #
 # lyapunov spectrum
 
-jacob<-DChaos::jacobi(coord_primes$specificity,M0=3,M1=7,doplot=FALSE)
+jacob<-DChaos::jacobi(tSeries,M0=3,M1=3,doplot=FALSE)
 deriv<-jacob$Jacobian.net
 lyapu<-DChaos::lyapunov.spec(deriv,blocking="FULL")
 show(lyapu$Exponent)

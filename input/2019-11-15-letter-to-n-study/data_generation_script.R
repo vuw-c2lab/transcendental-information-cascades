@@ -140,8 +140,8 @@ foo<-sapply(primes50k$X2,function(x){
 })
 
 
-X50kprimes <- read_delim("~/Downloads/50kprimes.txt", 
+X50kprimes <- read_delim("~/Downloads/primes50k.txt", 
                          ";", escape_double = FALSE, col_names = FALSE, 
                          trim_ws = TRUE)
 X50kprimes <- X50kprimes[sample(1:50000, 50000, replace=FALSE),]
-write.table(X50kprimes,"~/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/input/2019-11-15-letter-to-n-study/data/primes50k-random-order.txt",sep=';',row.names = F,col.names = F,append = T,quote = F)
+write.table(X50kprimes,"~/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/input/2019-11-15-letter-to-n-study/data/primesrandomorderC50k.txt",sep=';',row.names = F,col.names = F,append = T,quote = F)

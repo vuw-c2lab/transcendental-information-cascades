@@ -548,7 +548,7 @@ projectDir <- basename(getwd())
 dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
 
 # data source
-dataSource <- "primesrandomorder50k.txt"
+dataSource <- "primesrandomorderC50k.txt"
 
 # select tokeniser
 tokeniser <- "discrete/tokenised"
@@ -696,7 +696,7 @@ source("../../src/postProcessTICNetwork/main.R")
 postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
 
 
-# PIPELINE RANDOM NUMBERS --------------------------------------------------------------
+# PIPELINE Original Data  --------------------------------------------------------------
 
 ## create TIC
 # get project name from current directory and create output directory for project
@@ -704,7 +704,7 @@ projectDir <- basename(getwd())
 dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
 
 # data source
-dataSource <- "randomnumbers50k.txt"
+dataSource <- "primesrandomorder50k.txt"
 
 # select tokeniser
 tokeniser <- "discrete/tokenised"
@@ -722,9 +722,7 @@ source("../../src/postProcessTICNetwork/main.R")
 postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
 
 
-# REMOVE TAIL FROM PRIME DATASETS FOR PERTUB ANALYSIS ----------------------
-
-# PIPELINE PRIMES WITH k-th bottom removed by set probability --------------------------------------------------------------
+# PIPELINE PRIMES WITH k-th head removed  --------------------------------------------------------------
 
 ## create TIC
 # get project name from current directory and create output directory for project
@@ -733,34 +731,7 @@ for(i in 1:20){
   dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
   
   # data source
-  dataSource <- paste0("primes50k_tailRemove_",i,".txt")
-
-  # select tokeniser
-  tokeniser <- "discrete/tokenised"
-  
-  # create output directories for the different modules in this pipeline
-  outputDir <- paste0(tools::file_path_sans_ext(dataSource),"-",gsub("/","-",tokeniser),"-",format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
-  dir.create(file.path(paste0("../../output/",projectDir), outputDir), showWarnings = T)
-  
-  # run
-  source("../../src/createTIC/main.R")
-  tic <- createTIC(projectDir, outputDir, dataSource, tokeniser)
-  
-  # run TIC network post processing
-  source("../../src/postProcessTICNetwork/main.R")
-  postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
-}
-
-# PIPELINE PRIMES WITH k-th head removed by combined token probability probability --------------------------------------------------------------
-
-## create TIC
-# get project name from current directory and create output directory for project
-for(i in 1:20){
-  projectDir <- basename(getwd())
-  dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
-  
-  # data source
-  dataSource <- paste0("primesrandomorder50k_headRemove_",i,".txt")
+  dataSource <- paste0("randomprimes50k_headRemove_",i,".txt")
   
   # select tokeniser
   tokeniser <- "discrete/tokenised"
@@ -787,7 +758,7 @@ for(i in 1:20){
   dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
   
   # data source
-  dataSource <- paste0("primesrandomorder50k_tailRemove_",i,".txt")
+  dataSource <- paste0("randomprimes50k_tailRemove_",i,".txt")
   
   # select tokeniser
   tokeniser <- "discrete/tokenised"
@@ -805,37 +776,7 @@ for(i in 1:20){
   postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
 }
 
-# PIPELINE RANDOMS WITH k-th head removed by combined token probability probability --------------------------------------------------------------
-
-## create TIC
-# get project name from current directory and create output directory for project
-for(i in 1:20){
-  projectDir <- basename(getwd())
-  dir.create(file.path(paste0("../../output/"), projectDir), showWarnings = FALSE)
-  
-  # data source
-  dataSource <- paste0("random50k_headRemove_",i,".txt")
-  
-  # select tokeniser
-  tokeniser <- "discrete/tokenised"
-  
-  # create output directories for the different modules in this pipeline
-  outputDir <- paste0(tools::file_path_sans_ext(dataSource),"-",gsub("/","-",tokeniser),"-",format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
-  dir.create(file.path(paste0("../../output/",projectDir), outputDir), showWarnings = T)
-  
-  # run
-  source("../../src/createTIC/main.R")
-  tic <- createTIC(projectDir, outputDir, dataSource, tokeniser)
-  
-  # run TIC network post processing
-  source("../../src/postProcessTICNetwork/main.R")
-  postProcessTICNetwork(tic, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
-}
-
-
-
-
-#### MULTIPLEX
+#### MULTIPLEX Work in Progress
 
 # PIPELINE 4 --------------------------------------------------------------
 
@@ -849,12 +790,12 @@ for(i in 1:20){
 #allTICs <- allTICs[-which(allTICs=="postProcessTICMultiplex")]
 
 #or just selected
-allTICs <- c("primes50k-discrete-tokenised-2019-11-21-17-54-58",
-             "primes-base4-dataset-50k-discrete-tokenised-2019-11-21-20-52-25",
-             "primes-base8-dataset-50k-discrete-tokenised-2019-11-21-20-59-13",
-             "primes-base16-dataset-50k-discrete-tokenised-2019-11-21-21-08-56",
-             "primes-base32-dataset-50k-discrete-tokenised-2019-11-25-17-34-48",
-             "primes-base36-dataset-50k-discrete-tokenised-2019-11-25-17-57-06")
-
-source("../../src/postProcessTICMultiplex/main.R")
-tnsr <- postProcessTICMultiplex(projectDir, outputDir, dataSource, allTICs)
+# allTICs <- c("primes50k-discrete-tokenised-2019-11-21-17-54-58",
+#              "primes-base4-dataset-50k-discrete-tokenised-2019-11-21-20-52-25",
+#              "primes-base8-dataset-50k-discrete-tokenised-2019-11-21-20-59-13",
+#              "primes-base16-dataset-50k-discrete-tokenised-2019-11-21-21-08-56",
+#              "primes-base32-dataset-50k-discrete-tokenised-2019-11-25-17-34-48",
+#              "primes-base36-dataset-50k-discrete-tokenised-2019-11-25-17-57-06")
+# 
+# source("../../src/postProcessTICMultiplex/main.R")
+# tnsr <- postProcessTICMultiplex(projectDir, outputDir, dataSource, allTICs)
