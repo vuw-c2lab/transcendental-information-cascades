@@ -4,15 +4,12 @@
 import os
 
 import math
-from typing import Any, Optional, List
+from typing import Iterator, List
 
 from tic.utils import readlines
 
 
-def tokenise(data_source_path: str) -> Any:
-
-    tokenised = []
-
+def tokenise(data_source_path: str) -> Iterator[List[str]]:
     for line in readlines(data_source_path):
         line_tokens = []
         line = line.strip().lower()
@@ -24,19 +21,20 @@ def tokenise(data_source_path: str) -> Any:
                 if len(codon) == 3 and 'n' not in codon and '-' not in codon:
                     token = f'pos{idx + 1}#+{char + 1}#{codon}'
                     line_tokens.append(token)
-        tokenised.append(line_tokens)
-    return tokenised
+        yield line_tokens
 
 
 if __name__ == '__main__':
-    from _datetime import datetime
-    t0 = datetime.now()
+
+    input_path = os.path.join(os.getcwd(), '/Users/thimic/Developer/TIC/ordered.txt')
     output_path = os.path.join(os.getcwd(), 'tokenised.csv')
 
-    tokenised = tokenise('/Users/thimic/Developer/TIC/ordered.txt')
-    lines = [', '.join(line_tokens) for line_tokens in tokenised]
+    from _datetime import datetime
+    t0 = datetime.now()
 
-    with open(output_path, 'w') as stream:
-        stream.writelines(lines)
+    with open(output_path, 'a') as stream:
+        for line_tokens in tokenise(input_path):
+            line = ', '.join(line_tokens)
+            stream.write(line)
 
     print(f'Finished in {datetime.now() - t0}')
