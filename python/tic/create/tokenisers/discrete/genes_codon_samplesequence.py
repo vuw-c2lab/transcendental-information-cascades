@@ -11,8 +11,8 @@ from tic.utils import readlines
 
 def tokenise(data_source_path: str) -> Iterator[List[str]]:
     for line in readlines(data_source_path):
-        line_tokens = []
         line = line.strip().lower()
+        line_tokens = []
         for idx in range(math.floor(len(line) / 3)):
             for char in range(3):
                 start = (idx * 3) + char
@@ -28,6 +28,10 @@ if __name__ == '__main__':
 
     input_path = os.path.join(os.getcwd(), '/Users/thimic/Developer/TIC/ordered.txt')
     output_path = os.path.join(os.getcwd(), 'tokenised.csv')
+
+    # Remove existing output files before writing
+    if os.path.isfile(output_path):
+        os.remove(output_path)
 
     from _datetime import datetime
     t0 = datetime.now()
