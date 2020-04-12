@@ -7,7 +7,7 @@ import os
 
 from concurrent.futures import ProcessPoolExecutor
 from tqdm import tqdm
-from typing import List
+from typing import List, Optional
 
 from tic.utils import expand_path, line_count, readlines
 
@@ -36,34 +36,27 @@ def tokenise_line(line: str) -> List[str]:
     return line_tokens
 
 
-def process(input_path: str, output_path: str):
+def tokenise(input_path: str, workers: Optional[int] = None) -> str:
     """
-    Process lines from the input file using the tokeniser.
+    Tokenise lines from the input file using the tokenise_line() function.
 
     Args:
         input_path: Input file path
-        output_path: Output file path
+        workers: Number of workers used by the tokeniser. Defaults to computer's
+                 CPU core count.
 
     """
-    input_path = expand_path(input_path)
-    output_path = expand_path(output_path)
-
-    # Remove existing output files before writing
-    if os.path.isfile(output_path):
-        os.remove(output_path)
-
-    with ProcessPoolExecutor() as executor:
+    with ProcessPoolExecutor(max_workers=workers) as executor:
         progress_iter = tqdm(
             iterable=executor.map(tokenise_line, readlines(input_path)),
             desc='Tokenise',
             unit='lines',
             ncols=100,
-            total=line_count(input_path)
+            total=line_count(input_path),
         )
-        with open(output_path, 'a') as stream:
-            for line_tokens in progress_iter:
-                line = ', '.join(line_tokens)
-                stream.write(line + '\n')
+        for line_tokens in progress_iter:
+            line = ', '.join(line_tokens)
+            yield line
 
 
 @click.command()
@@ -81,11 +74,30 @@ def process(input_path: str, output_path: str):
     required=True,
     help='Tokenised output file'
 )
-def main(input_path: str = None, output_path: str = None):
+@click.option(
+    '-w',
+    '--workers',
+    type=int,
+    help=(
+        'Number of workers used to by the tokeniser. Defaults to  computer\'s '
+        'CPU core count'
+    )
+)
+def main(input_path: str = None, output_path: str = None,
+         workers: Optional[int] = None):
     """
     Genes Codon SampleSequence Tokeniser
     """
-    process(input_path, output_path)
+    input_path = expand_path(input_path)
+    output_path = expand_path(output_path)
+
+    # Remove existing output files before writing
+    if os.path.isfile(output_path):
+        os.remove(output_path)
+
+    with open(output_path, 'a') as stream:
+        for line in tokenise(input_path, workers):
+            stream.write(line + '\n')
 
 
 if __name__ == '__main__':
