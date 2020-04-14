@@ -35,9 +35,9 @@ def generate_discrete_tic(sequence: Iterable[str]) -> Tuple[list, list]:
         unit='lines',
         ncols=100,
     )
-    for index, line in enumerate(progress_iter):
+    for index, line in enumerate(progress_iter, start=1):
         tokens = line.split(', ')
-        nodes.append([str(index + 1), line, str(index + 1)])
+        nodes.append([str(index), line, str(index)])
         for token in tokens:
             if last_node.get(token):
                 source_node = last_node[token]
