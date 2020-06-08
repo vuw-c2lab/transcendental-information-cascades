@@ -32,12 +32,12 @@ coord_primes_b32 <- read.csv("../../output/2019-11-15-letter-to-n-study/primes-b
 coord_primes_b36 <- read.csv("../../output/2019-11-15-letter-to-n-study/primes-base36-dataset-50k-discrete-tokenised-2019-11-25-17-57-06/createTIC/TICCoordinates.csv",stringsAsFactors = F)
 
 
-coord_primes_random <- read.csv("../../output/2019-11-15-letter-to-n-study/primes50k-random-discrete-tokenised-2019-11-21-20-42-39/createTIC/TICCoordinates.csv",stringsAsFactors = F)
-coord_primes_random_order <- read.csv("../../output/2019-11-15-letter-to-n-study/primesrandomorder50k-discrete-tokenised-2020-01-11-13-49-00/createTIC/TICCoordinates.csv",stringsAsFactors = F)
-coord_prandom_numbers <- read.csv("../../output/2019-11-15-letter-to-n-study/randomnumbers50k-discrete-tokenised-2019-11-21-21-16-27/createTIC/TICCoordinates.csv",stringsAsFactors = F)
+coord_primes_random <- read.csv("../../output/2019-11-15-letter-to-n-study/randomprimes50k-discrete-tokenised-2020-01-28-11-16-26/createTIC/TICCoordinates.csv",stringsAsFactors = F)
+coord_primes_random_order <- read.csv("../../output/2019-11-15-letter-to-n-study/primesrandomorder50k-discrete-tokenised-2020-01-28-11-21-43/createTIC/TICCoordinates.csv",stringsAsFactors = F)
+coord_prandom_numbers <- read.csv("../../output/2019-11-15-letter-to-n-study/random50k-discrete-tokenised-2020-01-28-10-32-09/createTIC/TICCoordinates.csv",stringsAsFactors = F)
 
 
-coord_primes_tailRem1 <- read.csv("../../output/2019-11-15-letter-to-n-study/primes50k_tailRemove1-discrete-tokenised-2019-12-11-21-27-11/createTIC/TICCoordinates.csv",stringsAsFactors = F)
+#coord_primes_tailRem1 <- read.csv("../../output/2019-11-15-letter-to-n-study/primes50k_tailRemove1-discrete-tokenised-2019-12-11-21-27-11/createTIC/TICCoordinates.csv",stringsAsFactors = F)
 
 wien_primes <- read.csv("../../output/2019-11-15-letter-to-n-study/primes50k-discrete-tokenised-2019-11-21-17-54-58/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
 wien_primes_b4 <- read.csv("../../output/2019-11-15-letter-to-n-study/primes-base4-dataset-50k-discrete-tokenised-2019-11-21-20-52-25/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
@@ -74,9 +74,9 @@ wien_primes_b16$csumS <- c(0,cumsum(diff(wien_primes_b16$ShannonWiener)))
 wien_primes_b32$csumS <- c(0,cumsum(diff(wien_primes_b32$ShannonWiener)))
 wien_primes_b36$csumS <- c(0,cumsum(diff(wien_primes_b36$ShannonWiener)))
 
-wien_primes_random <- read.csv("../../output/2019-11-15-letter-to-n-study/primes50k-random-discrete-tokenised-2019-11-21-20-42-39/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
-wien_prandom_numbers <- read.csv("../../output/2019-11-15-letter-to-n-study/randomnumbers50k-discrete-tokenised-2019-11-21-21-16-27/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
-wien_primes_random_order <- read.csv("../../output/2019-11-15-letter-to-n-study/primesrandomorder50k-discrete-tokenised-2020-01-11-13-49-00/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
+wien_primes_random <- read.csv("../../output/2019-11-15-letter-to-n-study/randomprimes50k-discrete-tokenised-2020-01-28-11-16-26/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
+wien_prandom_numbers <- read.csv("../../output/2019-11-15-letter-to-n-study/random50k-discrete-tokenised-2020-01-28-10-32-09/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
+wien_primes_random_order <- read.csv("../../output/2019-11-15-letter-to-n-study/primesrandomorder50k-discrete-tokenised-2020-01-28-11-21-43/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
 
 wien_primes_random$run <- "primes_random"
 wien_primes_random_order$run <- "primes_random_order"
@@ -92,9 +92,9 @@ wien_primes_random_order$csumS <- c(0,cumsum(diff(wien_primes_random_order$Shann
 wien_prandom_numbers$csumS <- c(0,cumsum(diff(wien_prandom_numbers$ShannonWiener)))
 
 
-wien_primes_tailRem1 <- read.csv("../../output/2019-11-15-letter-to-n-study/primes50k_tailRemove1-discrete-tokenised-2019-12-11-21-27-11/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
-wien_primes_tailRem1$run <- "primes"
-wien_primes_tailRem1$index <- c(1:50000)
+#wien_primes_tailRem1 <- read.csv("../../output/2019-11-15-letter-to-n-study/primes50k_tailRemove1-discrete-tokenised-2019-12-11-21-27-11/createTIC/TICInfoTheory2.csv",stringsAsFactors = F)
+#wien_primes_tailRem1$run <- "primes"
+#wien_primes_tailRem1$index <- c(1:50000)
 
 # test ----
 ###  NONLINEAR
@@ -105,7 +105,7 @@ myts <- ts(plot_data$PielouRandOrder)
 stplot(myts, m=3, d=8, idt=1, mdt=50000)
 
 #eDim <- nonlinearTseries::embeddingDims(wien_primes$ShannonWiener)
-takens <- nonlinearTseries::buildTakens(coord_primes_random_order$specificity, embedding.dim = 3, time.lag = 1)
+takens <- nonlinearTseries::buildTakens(coord_prandom_numbers$specificity, embedding.dim = 3, time.lag = 1)
 plot(takens, pch='.')
 lines3D(takens[,1],takens[,2],takens[,3])
 takens.df <- as.data.frame(takens)
@@ -126,7 +126,7 @@ plot(ts(sinai.map$x))
 plot(r.ts,type = 'l')
 
 
-tSeries <- cumsum(coord_primes_random_order$specificity-mean(coord_primes_random_order$specificity))
+tSeries <- cumsum(coord_primes$specificity-mean(coord_primes$specificity))
 #tSeries <- coord_primes$specificity
 #tSeries <- log(coord_primes$specificity)
 

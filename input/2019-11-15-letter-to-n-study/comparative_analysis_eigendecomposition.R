@@ -975,14 +975,14 @@ setProbs <- setProbs[order(-setProbs$prob),]
 setProbsPrimes <- setProbs
 setProbsPrimes <- setProbsPrimes[order(-setProbsPrimes$prob),]
 
-links <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/primesrandomorder50k-discrete-tokenised-2020-01-11-13-49-00/createTIC/links.csv"),progress = F,col_types = cols())
+links <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/primesrandomorder50k-discrete-tokenised-2020-01-28-11-21-43/createTIC/links.csv"),progress = F,col_types = cols())
 tokenProbs <- plyr::count(as.character(links$token))
 tokenProbs$prob <- as.numeric(tokenProbs$freq)/nrow(links)
 
 tokenProbsPrimes <- tokenProbs
 
 
-nodes <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/primesrandomorder50k-discrete-tokenised-2020-01-11-13-49-00/createTIC/nodes.csv"),progress = F,col_types = cols())
+nodes <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/primesrandomorder50k-discrete-tokenised-2020-01-28-11-21-43/createTIC/nodes.csv"),progress = F,col_types = cols())
 nodes <- nodes[which(nodes$tokens != ""),]
 setProbs <- plyr::count(nodes$tokens)
 setProbs$prob <- as.numeric(setProbs$freq)/nrow(nodes)
@@ -1095,13 +1095,75 @@ setProbs$overallprob <- setProbs$tokenprobs * setProbs$prob
 setProbsPrimesRandOrderB <- setProbs
 setProbsPrimesRandOrderB <- setProbsPrimesRandOrderB[order(-setProbsPrimesRandOrderB$prob),]
 
-links <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/randomnumbers50k-discrete-tokenised-2019-11-21-21-16-27/createTIC/links.csv"),progress = F,col_types = cols())
+
+
+links <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/primesrandomorderC50k-discrete-tokenised-2020-01-28-08-39-47/createTIC/links.csv"),progress = F,col_types = cols())
+tokenProbs <- plyr::count(as.character(links$token))
+tokenProbs$prob <- as.numeric(tokenProbs$freq)/nrow(links)
+
+tokenProbsPrimes <- tokenProbs
+
+
+nodes <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/primesrandomorderC50k-discrete-tokenised-2020-01-28-08-39-47/createTIC/nodes.csv"),progress = F,col_types = cols())
+nodes <- nodes[which(nodes$tokens != ""),]
+setProbs <- plyr::count(nodes$tokens)
+setProbs$prob <- as.numeric(setProbs$freq)/nrow(nodes)
+distr <- plyr::count(setProbs$freq)
+
+comProbs <- apply(setProbs,1,function(x){
+  tokens <- unlist(strsplit(as.character(x[1]),", "))
+  product <- c()
+  lowToken <- list(NULL,NULL)
+  highToken <- list(NULL,NULL)
+  for(i in tokens){
+    if(is.null(lowToken[[2]])){
+      lowToken[[1]] <- tokenProbs[which(tokenProbs$x==i),1]
+      lowToken[[2]] <- tokenProbs[which(tokenProbs$x==i),3]
+    } else if(lowToken[[2]] > tokenProbs[which(tokenProbs$x==i),3]){
+      lowToken[[1]] <- tokenProbs[which(tokenProbs$x==i),1]
+      lowToken[[2]] <- tokenProbs[which(tokenProbs$x==i),3]
+    }
+    
+    if(is.null(highToken[[2]])){
+      highToken[[1]] <- tokenProbs[which(tokenProbs$x==i),1]
+      highToken[[2]] <- tokenProbs[which(tokenProbs$x==i),3]
+    } else if(highToken[[2]] < tokenProbs[which(tokenProbs$x==i),3]){
+      highToken[[1]] <- tokenProbs[which(tokenProbs$x==i),1]
+      highToken[[2]] <- tokenProbs[which(tokenProbs$x==i),3]
+    }
+    
+    product <- c(product,tokenProbs[which(tokenProbs$x==i),3])
+  }
+  res <- list(prod(product),lowToken[[1]],highToken[[1]])
+  res
+})
+
+setProbs$tokenprobs <- sapply(comProbs,function(x){
+  x[[1]]
+})
+
+setProbs$lowToken <- sapply(comProbs,function(x){
+  x[[2]]
+})
+
+setProbs$highToken <- sapply(comProbs,function(x){
+  x[[3]]
+})
+
+setProbs$overallprob <- setProbs$tokenprobs * setProbs$prob
+
+
+setProbsPrimesRandOrderC <- setProbs
+setProbsPrimesRandOrderC <- setProbsPrimesRandOrderC[order(-setProbsPrimesRandOrderC$prob),]
+
+
+links <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/random50k-discrete-tokenised-2020-01-28-10-32-09/createTIC/links.csv"),progress = F,col_types = cols())
 tokenProbs <- plyr::count(as.character(links$token))
 tokenProbs$prob <- as.numeric(tokenProbs$freq)/nrow(links)
 
 tokenProbsRandoms <- tokenProbs
 
-nodes <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/randomnumbers50k-discrete-tokenised-2019-11-21-21-16-27/createTIC/nodes.csv"),progress = F,col_types = cols())
+nodes <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/random50k-discrete-tokenised-2020-01-28-10-32-09/createTIC/nodes.csv"),progress = F,col_types = cols())
 nodes <- nodes[which(nodes$tokens != ""),]
 setProbs <- plyr::count(nodes$tokens)
 setProbs$prob <- as.numeric(setProbs$freq)/nrow(nodes)
@@ -1153,13 +1215,13 @@ setProbsRandoms <- setProbs
 setProbsRandoms <- setProbsRandoms[order(-setProbsRandoms$prob),]
 
 
-links <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/primes50k-random-discrete-tokenised-2019-11-21-20-42-39/createTIC/links.csv"),progress = F,col_types = cols())
+links <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/randomprimes50k-discrete-tokenised-2020-01-28-11-16-26/createTIC/links.csv"),progress = F,col_types = cols())
 tokenProbs <- plyr::count(as.character(links$token))
 tokenProbs$prob <- as.numeric(tokenProbs$freq)/nrow(links)
 
 tokenProbsPrimesRand <- tokenProbs
 
-nodes <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/primes50k-random-discrete-tokenised-2019-11-21-20-42-39/createTIC/nodes.csv"),progress = F,col_types = cols())
+nodes <- readr::read_csv(paste0("/Users/MLR/OneDrive - Victoria University of Wellington - STAFF/Git/transcendental-information-cascades/output/2019-11-15-letter-to-n-study/randomprimes50k-discrete-tokenised-2020-01-28-11-16-26/createTIC/nodes.csv"),progress = F,col_types = cols())
 nodes <- nodes[which(nodes$tokens != ""),]
 setProbs <- plyr::count(nodes$tokens)
 setProbs$prob <- as.numeric(setProbs$freq)/nrow(nodes)
@@ -1224,6 +1286,8 @@ randomOrderPrimesTailProbs <- rev(tail(setProbsPrimesRandOrder$prob,20))
 randomOrderPrimesHeadProbs <- rev(head(setProbsPrimesRandOrder$prob,20))
 randomOrderBPrimesTailProbs <- rev(tail(setProbsPrimesRandOrderB$prob,20))
 randomOrderBPrimesHeadProbs <- rev(head(setProbsPrimesRandOrderB$prob,20))
+randomOrderCPrimesTailProbs <- rev(tail(setProbsPrimesRandOrderC$prob,20))
+randomOrderCPrimesHeadProbs <- rev(head(setProbsPrimesRandOrderC$prob,20))
 
 # create unique run id
 resData$runIdentifier <- paste(resData$runData,resData$runType)
@@ -1243,7 +1307,7 @@ randomResData$axisTicks <- 0
 randomResData$axisTicks[1:20] <- randomResData$runId[1:20] - 21
 randomResData$axisTicks[21:40] <- randomResData$runId[21:40] - 20
 
-randomPrimesResData <- resData[which(resData$runData=="primesrandom50k"),]
+randomPrimesResData <- resData[which(resData$runData=="randomprimes50k"),]
 randomPrimesResData[which(randomPrimesResData$runType=="headRemove"),]$runId <- 41-randomPrimesResData[which(randomPrimesResData$runType=="headRemove"),]$runId
 randomPrimesResData <- randomPrimesResData[order(randomPrimesResData$runId),]
 randomPrimesResData$axisTicks <- 0
@@ -1264,12 +1328,20 @@ randomOrderBPrimesResData$axisTicks <- 0
 randomOrderBPrimesResData$axisTicks[1:20] <- randomOrderBPrimesResData$runId[1:20] - 21
 randomOrderBPrimesResData$axisTicks[21:40] <- randomOrderBPrimesResData$runId[21:40] - 20
 
+randomOrderCPrimesResData <- resData[which(resData$runData=="primesrandomorderC50k"),]
+randomOrderCPrimesResData[which(randomOrderCPrimesResData$runType=="headRemove"),]$runId <- 41-randomOrderCPrimesResData[which(randomOrderCPrimesResData$runType=="headRemove"),]$runId
+randomOrderCPrimesResData <- randomOrderCPrimesResData[order(randomOrderCPrimesResData$runId),]
+randomOrderCPrimesResData$axisTicks <- 0
+randomOrderCPrimesResData$axisTicks[1:20] <- randomOrderCPrimesResData$runId[1:20] - 21
+randomOrderCPrimesResData$axisTicks[21:40] <- randomOrderCPrimesResData$runId[21:40] - 20
+
 # fill probabilities
 primesResData$setProb <- c(primesTailProbs,primesHeadProbs)
 randomResData$setProb <- c(randomTailProbs,randomHeadProbs)
 randomPrimesResData$setProb <- c(randomPrimesTailProbs,randomPrimesHeadProbs)
 randomOrderPrimesResData$setProb <- c(randomOrderPrimesTailProbs,randomOrderPrimesHeadProbs)
 randomOrderBPrimesResData$setProb <- c(randomOrderBPrimesTailProbs,randomOrderBPrimesHeadProbs)
+randomOrderCPrimesResData$setProb <- c(randomOrderCPrimesTailProbs,randomOrderCPrimesHeadProbs)
 
 # creating the LR metric (experimental) -----
 
@@ -1277,19 +1349,21 @@ primesResData$lr <- primesResData$largestEV/primesResData$setProb
 randomResData$lr <- randomResData$largestEV/randomResData$setProb
 randomPrimesResData$lr <- randomPrimesResData$largestEV/randomPrimesResData$setProb
 randomOrderPrimesResData$lr <- randomOrderPrimesResData$largestEV/randomOrderPrimesResData$setProb
-randomOrderBPrimesResData$lr <- randomOrderBPrimesResData$largestEV/randomOrderPrimesResData$setProb
+randomOrderBPrimesResData$lr <- randomOrderBPrimesResData$largestEV/randomOrderBPrimesResData$setProb
+randomOrderCPrimesResData$lr <- randomOrderCPrimesResData$largestEV/randomOrderCPrimesResData$setProb
 
 primesResData$lr2 <- primesResData$largestEV/primesResData$recTrendSpec
 randomResData$lr2 <- randomResData$largestEV/randomResData$recTrendSpec
 randomPrimesResData$lr2 <- randomPrimesResData$largestEV/randomPrimesResData$recTrendSpec
 randomOrderPrimesResData$lr2 <- randomOrderPrimesResData$largestEV/randomOrderPrimesResData$recTrendSpec
 randomOrderBPrimesResData$lr2 <- randomOrderBPrimesResData$largestEV/randomOrderBPrimesResData$recTrendSpec
+randomOrderCPrimesResData$lr2 <- randomOrderCPrimesResData$largestEV/randomOrderCPrimesResData$recTrendSpec
 
 origResData$lr <- Inf
 origResData$lr2 <- origResData$largestEV/origResData$recTrendSpec
 
 # bring it all back together into the result dataset -----
-resData <- rbind(primesResData,randomResData,randomPrimesResData,randomOrderPrimesResData,randomOrderBPrimesResData)
+resData <- rbind(primesResData,randomResData,randomPrimesResData,randomOrderPrimesResData,randomOrderBPrimesResData,randomOrderCPrimesResData)
 
 #resData <- rbind(resData,origResData)
 
@@ -1318,8 +1392,8 @@ plo <- ggplot(resData,
   #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + 
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9", "primesrandomorderB50k" = "#009E73")) +
-  theme_clean() +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
+  #theme_clean() +
   labs(x = "Identifier set probability rank", y = "LR", colour="Dataset") +
   #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
   #annotate(geom="text", x=6, y=min(resData$hurstCoeffDiv)*.8, label=TeX("head removed $\\rightarrow$"), color="grey") +

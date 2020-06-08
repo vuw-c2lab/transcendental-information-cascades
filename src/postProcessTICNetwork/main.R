@@ -5,45 +5,45 @@ if (!require(digest)) install.packages('digest')
 if (!require(entropy)) install.packages('entropy')
 if (!require(vegan)) install.packages('vegan')
 
-dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "postProcessTICNetwork"), showWarnings = FALSE)
-
 # MAIN FUNCTION -----------------------------------------------------------
 
-postProcessTICNetwork <- function(tic=NULL, projectDir, outputDir, dataSource, tokeniser,no_cores=1){
+postProcessTICNetwork <- function(tic=NULL, projectDir=NULL, outputDir=NULL, dataSource=NULL, tokeniser=NULL,no_cores=1,path=NULL){
   if(is.null(tic)){
-    nodes <- read.csv(paste0("../../output/",projectDir,"/",outputDir,"/createTIC/nodes.csv"),stringsAsFactors = F)
-    links <- read.csv(paste0("../../output/",projectDir,"/",outputDir,"/createTIC/links.csv"), stringsAsFactors = F)
+    nodes <- read.csv(paste0(path,"nodes.csv"),stringsAsFactors = F)
+    links <- read.csv(paste0(path,"links.csv"), stringsAsFactors = F)
     
   } else{
     nodes <- data.frame(node_id = unlist(tic[[1]][,1]), tokens = unlist(tic[[1]][,2]),
                         ord = unlist(tic[[1]][,3]), stringsAsFactors = F)
     links <- data.frame(source = unlist(tic[[2]][,1]), target = unlist(tic[[2]][,2]),
                         token = unlist(tic[[2]][,3]), stringsAsFactors = F)
+    dir.create(file.path(paste0("../../output/",projectDir,"/",outputDir), "postProcessTICNetwork"), showWarnings = FALSE)
+    path = paste0("../../output/", projectDir,"/",outputDir,"/createTIC/")
   }
   
-  createTICMatrix(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
+  createTICMatrix(nodes, links, path, no_cores=1)
   #createCooccurrenceMatrix(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
   
-  createTICFeaturesFeature(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1)
+  createTICFeaturesFeature(nodes, links, path, no_cores=1)
 }
 
 
 # SUPPORT FUNCTIONS -------------------------------------------------------
 
-createTICMatrix <- function(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1){
+createTICMatrix <- function(nodes, links, path, no_cores=1){
   # create TIC network matrix and persist matrix
   
   colnames(links) <- c("id1","id2","label")
   groupedLinks <- plyr::count(links, vars=c("id1","id2"))
   colnames(groupedLinks) <- c("id1","id2","weight")
   g <- igraph::graph.data.frame(groupedLinks,directed = F,vertices = nodes)
-  readr::write_csv(as.data.frame(igraph::as_adjacency_matrix(g, sparse = F, type = "both", attr = "weight")), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICmatrix.csv"),col_names = T)
+  readr::write_csv(as.data.frame(igraph::as_adjacency_matrix(g, sparse = F, type = "both", attr = "weight")), paste0(path,"TICmatrix.csv"),col_names = T)
   rm(g)
   rm(links)
   gc()
 }
 
-createCooccurrenceMatrix <- function(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1){
+createCooccurrenceMatrix <- function(nodes, links, path, no_cores=1){
   # create co-occurrence matrix and persist matrix
   
   colnames(nodes) <- c('id','title','label')
@@ -73,11 +73,11 @@ createCooccurrenceMatrix <- function(nodes, links, projectDir, outputDir, dataSo
     netm <- igraph::as_adjacency_matrix(h, attr = "weight", sparse = F)
     colnames(netm) <- igraph::V(h)$name
     rownames(netm) <- igraph::V(h)$name
-    readr::write_csv(as.data.frame(netm), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/coocmatrix.csv"),col_names = T)
+    readr::write_csv(as.data.frame(netm), paste0(path,"coocmatrix.csv"),col_names = T)
   }
 }
 
-createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSource, tokeniser,no_cores=1){
+createTICFeaturesFeature <- function(nodes, links, path, no_cores=1){
   # now compute the structural and information theoretic features and persist these
   # 
   allTokens<-unique(unlist(strsplit(nodes$tokens,", ")))
@@ -118,9 +118,9 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
       }
       else{
         if(is.null(spec[[nextI]])){
+          div <<- div+1
           spec[[nextI]] <<- c(1,div)
           coordinates[z,] <<- c(as.numeric(nodes[z,1]),spec[[nextI]][1],div)
-          div <<- div+1
         }else{
           spec[[nextI]] <<- c(spec[[nextI]][1]+1,spec[[nextI]][2])
           coordinates[z,] <<- c(as.numeric(nodes[z,1]),spec[[nextI]][1],spec[[nextI]][2])
@@ -148,8 +148,8 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
       if(nrow(df) == 1){
         wien[z,] <<- c(0, 1, 1)
       } else{
-        H <- vegan::diversity(df[,1])
         S <- nrow(df)
+        H <- vegan::diversity(df[,1])
         J <- H/log(S)
         wien[z,] <<- c(H, J, S)
       }}
@@ -172,7 +172,7 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   })
   
   #readr::write_csv(as.data.frame(ent), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory1.csv"),col_names = T)
-  readr::write_csv(as.data.frame(wien), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICInfoTheory2.csv"),col_names = T)
+  readr::write_csv(as.data.frame(wien), paste0(path,"TICInfoTheory2.csv"),col_names = T)
   
   #scatterplot3d(coordinates[,2],coordinates[,1],coordinates[,3],pch=16, highlight.3d=TRUE,type="h",xlab="Specificity",ylab="Node index",zlab="Diversity")
   
@@ -186,7 +186,7 @@ createTICFeaturesFeature <- function(nodes, links, projectDir, outputDir, dataSo
   #struct[which(is.na(struct))]<<-0
   #readr::write_csv(as.data.frame(struct), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICStructFeatures.csv"),col_names = T)
   
-  readr::write_csv(as.data.frame(coordinates), paste0("../../output/", projectDir,"/",outputDir,"/createTIC/TICCoordinates.csv"),col_names = T)
+  readr::write_csv(as.data.frame(coordinates), paste0(path,"TICCoordinates.csv"),col_names = T)
   
   #struc_plot <- as.data.frame(struct) %>%
   #  mutate(rownumber = seq.int(nrow(.)))

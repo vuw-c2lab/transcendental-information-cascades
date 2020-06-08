@@ -123,13 +123,64 @@ generateContinuousTIC <- function(inputsequence,tokeniser) {
       
       nodes <- rbind(nodes, c(as.numeric(j),paste(words,collapse=", "),as.numeric(j)))
     }
+  } else if(grepl(pattern = "mean-standard-error",x = tokeniser)){
+    for(j in 1:nrow(inputsequence)){
+      print(paste0("# process node ",j, " of ",nrow(inputsequence)))
+      
+      if(j>1){
+        for(k in 1:(j-1)){
+          tokens <- unlist(strsplit(as.character(inputsequence[k,2]), split=", "))
+          for(l in 1:length(tokens)){
+            
+            cur_token <- tokens[l]
+            
+            cur_val <- as.numeric(unlist(strsplit(cur_token,"#"))[3])
+            cur_serr <- as.numeric(unlist(strsplit(cur_token,"#"))[4])
+            cur_token_cut <- paste0(unlist(strsplit(cur_token,"#"))[1],"#",unlist(strsplit(cur_token,"#"))[2])
+            
+            if(is.null(matchedSource[[paste0(k,"#",cur_token_cut)]])){
+              
+              target_tokens <- unlist(strsplit(as.character(inputsequence[j,2]), split=", "))
+              
+              link_token <- target_tokens[which(grepl(cur_token_cut,target_tokens))]
+              
+              if(length(link_token) > 0){
+                target_val <- as.numeric(unlist(strsplit(link_token[1],"#"))[3])
+                target_serr <- as.numeric(unlist(strsplit(link_token[1],"#"))[4])
+                target_token_cut <- paste0(unlist(strsplit(link_token[1],"#"))[1],"#",unlist(strsplit(link_token[1],"#"))[2])
+                
+                out <- tryCatch({
+                  if((target_val+target_serr) >= (cur_val-cur_serr) & (target_val-target_serr) <= (cur_val+cur_serr)){
+                    links<-rbind(links,c(k,j,paste0(cur_token_cut)))
+                    matched[[paste0(j,"#",cur_token_cut)]]<-1
+                    matchedSource[[paste0(k,"#",cur_token_cut)]]<-1
+                    print(nrow(links))
+                  }
+                },
+                error=function(cond) {
+                  message(cond)
+                  print("source")
+                  print(cur_val)
+                  print(cur_serr)
+                  print("target")
+                  print(target_val)
+                  print(target_serr)
+                })
+              }
+            }
+          }
+        }
+      }
+      nodes <- rbind(nodes, c(as.numeric(j),inputsequence[j,2],as.numeric(j)))
+    }
+    return(list(nodes, links))
   } else{
     for(j in 1:length(inputsequence)){
       interact<-list()
       if(j>1){
         for(k in 1:(j-1)){
           for(l in 1:ncol(inputsequence[[k]])){
-            if(is.null(matched[[paste(j,l,sep='_')]]) && is.null(matchedSource[[paste(k,l,sep='_')]])){
+            if(is.null(matched[[paste(j,l,sep='_')]]) & is.null(matchedSource[[paste(k,l,sep='_')]])){
               
               #load similarity measure
               isSimilar <- similar(as.numeric(unlist(inputsequence[[j]][,l])),as.numeric(unlist(inputsequence[[k]][,l])),0.6)

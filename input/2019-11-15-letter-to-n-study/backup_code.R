@@ -66,7 +66,7 @@ ggplot(resData,
   scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","top 10", "top 1")) +
   geom_point() +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#009E73", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   scale_y_continuous(trans = 'asinh') +
   labs(x = "Identifier set probability rank", y = "Sigma (scaled)", colour="Dataset") +
@@ -102,7 +102,7 @@ ggplot(resData,
   scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","top 10", "top 1")) +
   geom_point() +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#009E73", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Alpha (scaled)", colour="Dataset") +
   annotate(geom="text", x=-5.5, y=max(scale(resData$pLawAlpha))*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -138,7 +138,7 @@ ggplot(resData,
   scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","top 10", "top 1")) +
   geom_point() +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#009E73", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Condition number", colour="Dataset") +
   annotate(geom="text", x=-5.5, y=max(resData$conditionNumber)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -173,7 +173,7 @@ ggplot(resData,
   scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + geom_line() +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#009E73", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Lapyunov spectrum", colour="Dataset") +
   annotate(geom="text", x=-5.5, y=max(resData$lapSpec)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -207,7 +207,7 @@ ggplot(resData,
   scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + geom_line() +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#009E73", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Recurrence percentage (scaled)", colour="Dataset") +
   annotate(geom="text", x=-5.5, y=min(scale(resData$recPercSpec))*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -222,7 +222,7 @@ ggplot(resData,
   scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + geom_line() +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#009E73", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Recurrence percentage (scaled)", colour="Dataset") +
   annotate(geom="text", x=-5.5, y=max(scale(resData$recPercDiv))*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -260,7 +260,7 @@ ggplot(resData,
   scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + geom_line() +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#009E73", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Hurst coefficient", colour="Dataset") +
   annotate(geom="text", x=-5.5, y=min(scale(resData$hurstCoeffSpec))*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -275,7 +275,7 @@ ggplot(resData,
   scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + geom_line() +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#009E73", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Recurrence percentage (scaled)", colour="Dataset") +
   annotate(geom="text", x=-5.5, y=min(scale(resData$hurstCoeffDiv))*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +

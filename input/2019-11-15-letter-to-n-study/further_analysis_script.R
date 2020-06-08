@@ -800,7 +800,7 @@ ggplot(resData,
   #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + geom_smooth(span = 0.6) +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9", "primesrandomorderB50k" = "#009E73")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Hurst coefficient", colour="Dataset") +
   #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -815,7 +815,7 @@ ggplot(resData,
   #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + geom_smooth(span = 0.6) +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9", "primesrandomorderB50k" = "#009E73")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
   #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -830,7 +830,7 @@ ggplot(resData,
   #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + geom_smooth(span = 0.6) +
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9", "primesrandomorderB50k" = "#009E73")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Recurrence ratio", colour="Dataset") +
   #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -868,7 +868,7 @@ ggplot(resData2,
   #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + geom_smooth(span = 0.6) +
   geom_label_repel(aes(label = resData2$axisTicks, fill=resData2$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9", "primesrandomorderB50k" = "#009E73")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "Recurrence percentage", colour="Dataset") +
   #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +
@@ -976,7 +976,7 @@ plo <- ggplot(resData,
   #scale_x_continuous(breaks = seq(from=-20, to=20, by=10), labels = c("bottom 1","bottom 10","","head 10", "head 1")) +
   geom_point() + 
   geom_label_repel(aes(label = resData$setProb, fill=resData$runData), color = 'white', size = 2.5, label.padding = unit(0.15, "lines"), point.padding = unit(0.35, "lines"),show.legend=F, segment.colour = "grey") +
-  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "primesrandom50k" = "#E69F00", "primesrandomorder50k" = "#56B4E9", "primesrandomorderB50k" = "#009E73")) +
+  scale_fill_manual(values=c("primes50k" = "#000000", "random50k" = "#F0E442", "randomprimes50k" = "#0072B2", "primesrandomorder50k" = "#E69F00", "primesrandomorderB50k" = "#56B4E9", "primesrandomorderC50k" = "#009E73")) +
   theme_clean() +
   labs(x = "Identifier set probability rank", y = "LR", colour="Dataset") +
   #annotate(geom="text", x=-5.5, y=min(resData$hurstCoeffDiv)*.8, label=TeX("$\\leftarrow$ tail removed"), color="grey") +

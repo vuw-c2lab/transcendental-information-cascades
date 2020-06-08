@@ -4,6 +4,16 @@ library(userfriendlyscience)
 library(BEST)
 library(randomForest)
 library(corrgram)
+library(lime)       # ML local interpretation
+library(vip)        # ML global interpretation
+library(pdp)        # ML global interpretation
+library(ggplot2)    # visualization pkg leveraged by above packages
+library(caret)      # ML model building
+library(h2o)        # ML model building
+library(plot3D)
+library(plotly)
+
+options(scipen = 10000)
 
 
 # construct diff data etc. ----
@@ -27,13 +37,14 @@ for(orig in 1:nrow(origResData)){
 primeRows <- which(resDiffData$runData=="primes50k")
 primeRandomOrderRows <- which(resDiffData$runData=="primesrandomorder50k")
 primeRandomOrderBRows <- which(resDiffData$runData=="primesrandomorderB50k")
+primeRandomOrderCRows <- which(resDiffData$runData=="primesrandomorderC50k")
 randomNumbersRows <- which(resDiffData$runData=="random50k")
 
 
 scaledResData <- resDiffData
 
 for(stp in c(4:63,68)){
-  scaledResData[,stp] <- c(scale(scaledResData[,stp]))
+  scaledResData[,stp] <- (unlist(scaledResData[,stp])  - mean(unlist(scaledResData[,stp]) ))/sd(unlist(scaledResData[,stp]) )
 }
 
 mlResData <- resDiffData[,c(1,38,40,41,42,15,10,11,56,58,60,61,62,63,66)]
@@ -53,7 +64,7 @@ n_seed = 30116
 h2o.init()
 h2o.no_progress()
 h2o.removeAll()
-ldaDs = as.h2o(resDiffData[,c(1,38,40,41,15,10,11,56,60,61,62,63,66)])
+ldaDs = as.h2o(resDiffData[,c(1,38,40,41,15,10,11,56,62,63,66)])
 
 # Split Train/Test
 ldaDs.split = h2o.splitFrame(ldaDs, ratios = 0.75, seed = n_seed)
@@ -89,9 +100,18 @@ importance(rfModel)
 
 # plotting to evaluate some example combinations----
 # 
-interp_data <- interp(x=resDiffData$max_div[primeRows],
-                      y=resDiffData$largestEV[primeRows],
-                      z=resDiffData$hurstCoeffDiv[primeRows])
+irows <- primeRows
+irows <- primeRandomOrderRows
+irows <- primeRandomOrderBRows
+irows <- primeRandomOrderCRows
+irows <- randomNumbersRows
+
+ix=scaledResData$recEntropyDiv[irows]
+iy=scaledResData$piel_log_sl[irows]
+iz =scaledResData$mean_div[irows]
+interp_data <- interp(x=ix,
+                      y=iy,
+                      z=iz)
 
 p <- plot_ly(x=interp_data$x, y=interp_data$y, z = interp_data$z) %>% add_surface()
 p
@@ -109,7 +129,14 @@ plot_ly(x=(resDiffData$pcount_dist_wiener - mean(resDiffData$pcount_dist_wiener)
 plot_ly(x=resData$max_div,
         y=resData$largestEV,
         z = resData$hurstCoeffDiv, 
-        type = "scatter3d",mode="points",opacity=0.5, color = resData$runData)
+        type = "scatter3d",mode="points",opacity=0.5, color = resData$runData) %>%
+  layout(
+    #title = "Layout options in a 3d scatter plot",
+    scene = list(
+      xaxis = list(title = "Max. TIC identifier set diversity"),
+      yaxis = list(title = "Largest eigenvalue"),
+      zaxis = list(title = "Hurst coefficient of identifier set diversity time series")
+    ))
 
 corrData <- resData[,c(38,40,41,42,15,10,11,56,58,60,61,62,63,66)]
 corrgram(corrData, order=TRUE, lower.panel=panel.shade,
