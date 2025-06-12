@@ -12,3 +12,4 @@ Applications:
  * Luczak-Roesch, M., Grener, A., & Fenton, E. (2018). Not-so-distant reading: A dynamic network approach to literature. it-Information Technology, 60(1), 29-40.
  * Luczak-Roesch, M., Grener, A., & Fenton, E. (2018, January). Twenty thousand leagues above the book: an interactive visual analytics approach to literature. In Proceedings of the 2018 ACM Conference on Supporting Groupwork (pp. 94-97). ACM.
  * Tinati, R., Luczak-Roesch, M., & Hall, W. (2016, April). Finding structure in wikipedia edit activity: An information cascade approach. In Proceedings of the 25th international conference companion on world wide web (pp. 1007-1012). International World Wide Web Conferences Steering Committee.
+ 
